@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASER — Salattu Aikajana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080B; --bg-raise:#12141C; --bg-raise-2:#181C27;
+  --line:rgba(255,255,255,0.09); --line-soft:rgba(255,255,255,0.05);
+  --text:#ECEEF4; --text-dim:#8D96AC; --text-faint:#565F75;
+  --ruby:#FF2E4D; --teal:#27DFC7; --violet:#8B6CFF; --amber:#FFB84D; --green:#3fd97a;
+  --serif:'Fraunces', Georgia, serif; --sans:'Inter', -apple-system, sans-serif; --mono:'JetBrains Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;}
+::selection{background:var(--ruby);color:#fff;}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+button{font-family:inherit;cursor:pointer;}
+
+/* ---------- TOP BAR ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(7,8,11,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);}
+.topbar-inner{max-width:760px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.tb-brand{font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;color:var(--text-faint);display:flex;align-items:center;gap:8px;}
+.tb-brand .dot{width:6px;height:6px;border-radius:50%;background:var(--ruby);box-shadow:0 0 8px var(--ruby);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tb-role{font-family:var(--mono);font-size:11px;color:var(--teal);border:1px solid rgba(39,223,199,0.35);padding:4px 10px;border-radius:20px;background:rgba(39,223,199,0.07);}
+.progress-track{height:3px;background:var(--line);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--ruby),var(--teal));width:0%;transition:width .5s ease;}
+
+/* ---------- ROLE GATE ---------- */
+.gate{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:60px 0;}
+.gate .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:0.18em;color:var(--teal);text-transform:uppercase;margin-bottom:20px;}
+.gate h1{font-family:var(--serif);font-weight:700;font-size:clamp(2.1rem,7vw,3.4rem);line-height:1.04;letter-spacing:-0.01em;}
+.gate h1 em{font-style:italic;color:var(--ruby);}
+.gate p.lede{color:var(--text-dim);margin-top:18px;font-size:1.02rem;max-width:520px;}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:40px;}
+@media(max-width:560px){.role-cards{grid-template-columns:1fr;}}
+.role-card{background:var(--bg-raise);border:1px solid var(--line);border-radius:16px;padding:26px 22px;text-align:left;transition:.2s;}
+.role-card:hover{border-color:var(--teal);background:var(--bg-raise-2);transform:translateY(-2px);}
+.role-card .rc-icon{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--text-faint);text-transform:uppercase;}
+.role-card h3{font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-top:10px;color:var(--text);}
+.role-card p{font-size:13px;color:var(--text-dim);margin-top:8px;}
+.role-card.teacher{border-color:rgba(255,184,77,0.25);}
+.role-card.teacher:hover{border-color:var(--amber);}
+
+/* ---------- STAGE NAV (teacher) ---------- */
+.stagenav{display:flex;gap:6px;overflow-x:auto;padding:14px 0;margin-bottom:6px;}
+.stagenav::-webkit-scrollbar{display:none;}
+.snbtn{flex:0 0 auto;font-family:var(--mono);font-size:11px;padding:7px 12px;border-radius:20px;border:1px solid var(--line);background:var(--bg-raise);color:var(--text-faint);white-space:nowrap;}
+.snbtn.active{border-color:var(--ruby);color:var(--ruby);background:rgba(255,46,77,0.08);}
+.snbtn.done{color:var(--teal);border-color:rgba(39,223,199,0.3);}
+
+/* ---------- STAGE ---------- */
+.stage{padding:52px 0 90px;}
+.act-tag{font-family:var(--mono);font-size:12px;color:var(--ruby);letter-spacing:0.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.act-tag::before{content:'';width:22px;height:1px;background:var(--ruby);}
+h2.stage-title{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,5vw,2.5rem);letter-spacing:-0.01em;line-height:1.06;}
+.stage-year{font-family:var(--mono);font-size:13px;color:var(--text-faint);margin-top:10px;}
+.narration{margin-top:26px;font-size:1.02rem;color:#CBD1E0;}
+.narration p{margin-bottom:16px;}
+.narration strong{color:var(--text);font-weight:600;}
+
+.secret{margin-top:28px;background:var(--bg-raise);border:1px solid rgba(139,108,255,0.25);border-radius:14px;overflow:hidden;}
+.secret-head{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;background:rgba(139,108,255,0.06);border:none;width:100%;text-align:left;color:var(--violet);font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;}
+.secret-body{padding:0 20px 20px;font-size:13.8px;color:var(--text-dim);display:none;}
+.secret-body.open{display:block;}
+.secret-head .chev{transition:transform .2s;}
+.secret-head.open .chev{transform:rotate(180deg);}
+
+.fate{margin-top:16px;background:linear-gradient(135deg,rgba(255,46,77,0.08),transparent);border-left:2px solid var(--ruby);border-radius:0 10px 10px 0;padding:16px 20px;}
+.fate .ftag{font-family:var(--mono);font-size:10.5px;color:var(--ruby);letter-spacing:0.1em;text-transform:uppercase;}
+.fate p{font-size:13.5px;color:var(--text-dim);margin-top:6px;}
+
+/* ---------- QUESTION ---------- */
+.qbox{margin-top:40px;background:var(--bg-raise);border:1px solid var(--line);border-radius:16px;padding:26px 24px;}
+.qbox .qlabel{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.qbox .qtext{font-family:var(--serif);font-size:1.18rem;font-weight:600;line-height:1.32;}
+.opts{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--bg-raise-2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--text-dim);transition:.15s;display:flex;gap:10px;align-items:flex-start;}
+.opt:hover{border-color:var(--teal);color:var(--text);}
+.opt .letter{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);flex:0 0 auto;padding-top:1px;}
+.opt.correct{border-color:var(--green);background:rgba(63,217,122,0.09);color:var(--text);}
+.opt.wrong{border-color:var(--ruby);background:rgba(255,46,77,0.08);color:var(--text);}
+.opt.disabled{pointer-events:none;opacity:.55;}
+.opt.reveal-correct{border-color:var(--green);background:rgba(63,217,122,0.09);}
+
+.feedback{margin-top:16px;font-size:13.5px;padding:14px 16px;border-radius:10px;display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:rgba(63,217,122,0.09);border:1px solid rgba(63,217,122,0.3);color:#B9F5CE;}
+.feedback.no{background:rgba(255,46,77,0.08);border:1px solid rgba(255,46,77,0.3);color:#FFC7CF;}
+
+.stage-actions{margin-top:28px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.btn{font-family:var(--mono);font-size:12.5px;padding:12px 22px;border-radius:30px;border:1px solid var(--line);background:transparent;color:var(--text-dim);}
+.btn.primary{background:var(--teal);color:#04211C;border-color:var(--teal);font-weight:700;}
+.btn.primary:disabled{opacity:.3;pointer-events:none;}
+.btn.ghost:hover{border-color:var(--text-dim);color:var(--text);}
+.btn.small{padding:8px 14px;font-size:11px;}
+
+/* ---------- FINALE ---------- */
+.finale{text-align:center;padding:70px 0;}
+.finale .medal{font-family:var(--mono);font-size:12px;color:var(--teal);letter-spacing:0.2em;text-transform:uppercase;}
+.finale h1{font-family:var(--serif);font-size:clamp(2rem,7vw,3.2rem);font-weight:700;margin-top:16px;}
+.finale p{color:var(--text-dim);margin-top:16px;max-width:480px;margin-left:auto;margin-right:auto;}
+
+/* ---------- EXAM EXPORT (teacher) ---------- */
+.examlist{margin-top:14px;}
+.examlist .eitem{background:var(--bg-raise);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:12px;}
+.examlist .eitem .en{font-family:var(--mono);font-size:11px;color:var(--ruby);}
+.examlist .eitem h4{font-family:var(--serif);font-size:1.02rem;margin-top:6px;font-weight:600;}
+.examlist .eitem ol{margin-top:10px;padding-left:20px;font-size:13px;color:var(--text-dim);}
+.examlist .eitem ol li{margin-bottom:4px;}
+.examlist .eitem ol li.ans{color:var(--green);font-weight:600;}
+
+@media print{
+  .topbar,.stagenav,.gate,.stage-actions{display:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar" style="display:none;">
+  <div class="topbar-inner">
+    <div class="tb-brand"><span class="dot"></span>LASER · SALATTU AIKAJANA</div>
+    <div class="tb-role" id="roleBadge"></div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="wrap">
+
+  <!-- ROLE GATE -->
+  <div class="gate" id="gate">
+    <div class="eyebrow">Ennen kuin astut sisään</div>
+    <h1>Kymmenen vuosikymmentä.<br>Yksi <em>kilpajuoksu</em>.<br>Yksi valintasi.</h1>
+    <p class="lede">Edessäsi on laserin salattu historia yhdentoista näytöksen sarjana — kilpaa, patenttisotia, menetettyjä omaisuuksia ja miljardien liiketoimintaa. Jokainen näytös päättyy koekysymykseen. Valitse ensin roolisi.</p>
+    <div class="role-cards">
+      <button class="role-card" onclick="startAs('student')">
+        <div class="rc-icon">Tila 01</div>
+        <h3>Opiskelija</h3>
+        <p>Etenet näytös kerrallaan. Seuraava näytös avautuu vasta, kun vastaat kysymykseen oikein. Ei oikoteitä.</p>
+      </button>
+      <button class="role-card teacher" onclick="startAs('teacher')">
+        <div class="rc-icon">Tila 02</div>
+        <h3>Opettaja</h3>
+        <p>Kaikki näytökset ja vastausavaimet auki heti. Voit hypätä vapaasti ja tulostaa koko koekysymyspatteriston.</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- TEACHER STAGE NAV -->
+  <div class="stagenav" id="stagenav" style="display:none;"></div>
+
+  <!-- STAGE CONTAINER -->
+  <div id="stageContainer"></div>
+
+  <!-- FINALE -->
+  <div class="finale" id="finale" style="display:none;">
+    <div class="medal">Näytös XII · Lopputekstit</div>
+    <h1>Koherenssi saavutettu.</h1>
+    <p>Kävit läpi kilpajuoksun Einsteinista eksawattiluokan plasmoihin — kaikki yksitoista näytöstä, kaikki koekysymykset. Sama valo, joka syttyi rubiinikiteessä 1960, leikkaa nyt akkuja, kantaa internetin ja piirtää mikropiirit joilla tätä sivua katsot.</p>
+    <button class="btn primary" style="margin-top:26px;" onclick="location.reload()">Aloita alusta</button>
+  </div>
+
+  <!-- EXAM EXPORT VIEW -->
+  <div id="examExport" style="display:none;padding:40px 0;">
+    <h2 style="font-family:var(--serif);font-size:1.8rem;margin-bottom:6px;">Koekysymykset — vastausavaimella</h2>
+    <p style="color:var(--text-faint);font-size:12.5px;margin-bottom:20px;">Tulostettava kooste kaikista yhdentoista näytöksen kysymyksistä. Oikea vastaus merkitty vihreällä.</p>
+    <div class="examlist" id="examListInner"></div>
+    <button class="btn ghost small" onclick="window.print()" style="margin-top:10px;">Tulosta / vie PDF:ksi</button>
+  </div>
+
+</div>
+
+<script>
+const STAGES = [
+{
+  id:'fysiikka', act:'Näytös I', year:'1916, Berliini',
+  title:'Kipinä joka odotti 44 vuotta',
+  narration:[
+    "Albert Einstein istuu työpöytänsä ääressä ja kirjoittaa yhtälön, joka ei näytä miltään erityiseltä: kolmas tapa, jolla valo ja aine voivat kohdata. Hän kutsuu sitä <strong>stimuloiduksi emissioksi</strong>.",
+    "Kukaan ei rakenna laitetta hänen elinaikanaan. Einstein kuolee 1955 — viisi vuotta ennen kuin kukaan todistaa hänen olleen oikeassa. Idea makaa fysiikan lehdissä neljä vuosikymmentä, kunnes joukko kunnianhimoisia tutkijoita tajuaa: tästä voi rakentaa jotain, joka vahvistaa valoa itseään."
+  ],
+  secret:"Einstein ei koskaan käyttänyt sanaa 'laser' — sitä ei ollut vielä keksitty. Hän johti stimuloidun emission puhtaasti termodynamiikan tasapainoyhtälöistä, ilman mitään kokeellista näyttöä ilmiöstä. Teoria oli 44 vuotta edellä laitteistoa.",
+  fate:{tag:"Kohtalo", text:"Einstein ei nähnyt koskaan yhtään laseria eikä hyötynyt niistä taloudellisesti — hänen palkintonsa oli puhtaasti se, että hän oli oikeassa."},
+  q:{
+    prompt:"Mikä tekee stimuloidusta emissiosta ainutlaatuisen verrattuna hehkulampun tavalliseen (spontaaniin) valontuottoon?",
+    opts:[
+      "Stimuloitu fotoni on aina energialtaan suurempi kuin sen laukaissut fotoni",
+      "Stimuloitu emissio tuottaa kaksi identtistä fotonia — sama suunta, vaihe ja aallonpituus — kun spontaani emissio on satunnaista",
+      "Stimuloitu emissio toimii vain absoluuttisessa nollapisteessä",
+      "Stimuloitu emissio ei vaadi lainkaan energiaa atomilta"
+    ], correct:1,
+    explain:"Juuri tämä identtisyys — sama suunta, vaihe ja aallonpituus — on koherenssin fysikaalinen ydin. Ilman sitä lumivyörymäinen vahvistuminen resonaattorissa ei olisi mahdollista."
+  }
+},
+{
+  id:'historia', act:'Näytös II', year:'1957–1960, New York → Malibu → Moskova',
+  title:'Kilpajuoksu, jonka kaikki hävisivät väärällä tavalla',
+  narration:[
+    "Marraskuu 1957. Columbian yliopiston jatko-opiskelija <strong>Gordon Gould</strong> herää keskellä yötä oivallukseen ja kirjoittaa sen muistikirjaansa. Hän kävelee seuraavana päivänä lähikauppaan notarisoimaan sivut todisteeksi — mutta ei jätä patenttihakemusta. Hän uskoo tarvitsevansa ensin toimivan laitteen.",
+    "Samaan aikaan Bell Labsilla <strong>Charles Townes</strong> ja <strong>Arthur Schawlow</strong> julkaisevat teoreettisen mallinsa avoimesta resonaattorista Physical Review -lehdessä. He jättävät patenttihakemuksen ennen Gouldia. Rautaesiripun toisella puolella Neuvostoliiton <strong>Nikolai Basov</strong> ja <strong>Aleksandr Prohorov</strong> ratkaisevat saman ongelman täysin itsenäisesti — kylmän sodan tiedekilpailu käy kuumana.",
+    "16. toukokuuta 1960 alan ulkopuolinen <strong>Theodore Maiman</strong> Hughes Research Laboratoriesilla lyö kaikki suuret laboratoriot: hän saa synteettisen rubiinikiteen hohtamaan koherenttia punaista valoa — materiaalilla, jota asiantuntijat pitivät tehottomana kolmitasorakenteensa vuoksi."
+  ],
+  secret:"Kun Maiman lähetti läpimurtoartikkelinsa arvostettuun Physical Review Letters -lehteen, toimittaja hylkäsi sen — hän luuli sitä vain jatko-osaksi Maimanin edelliselle, vähäpätöisemmälle tutkimukselle. Maiman joutui julkaisemaan historiallisen löydön sen sijaan Nature-lehdessä. Hughesin lakiosasto pelkäsi lisäksi laitteen liittyvän asetutkimukseen ja rajoitti alkuperäistä lehdistötiedotetta.",
+  fate:{tag:"Kohtalo — Gordon Gould", text:"Koska Gould viivytteli patenttihakemustaan, hän hävisi kilpajuoksun paperilla ja aloitti 30-vuotisen oikeustaistelun Bell Labsia ja koko laserteollisuutta vastaan. Hän voitti ensimmäisen pienen patenttinsa 1977 ja ratkaisevan voiton vasta 1987 — mutta koska patentti oli silloin vielä voimassa juuri kun laserteollisuus räjähti kasvuun, hän tienasi seuraavien 17 vuoden aikana arviolta 30 miljoonaa dollaria lisenssimaksuina. Jos hän olisi voittanut heti 1959, patentti olisi vanhentunut ennen kuin lasereista tuli bisnestä."}
+,
+  q:{
+    prompt:"Kuka rakensi ensimmäisenä toimivan laserin, ja millä aktiivisella aineella?",
+    opts:[
+      "Charles Townes, ammoniakkikaasulla",
+      "Gordon Gould, heliumilla ja neonilla",
+      "Theodore Maiman, synteettisellä rubiinikiteellä",
+      "Nikolai Basov, galliumarsenidilla"
+    ], correct:2,
+    explain:"Maiman voitti kilpajuoksun 16.5.1960 rubiinilla — materiaalilla, jota moni piti huonona valintana. Townes rakensi maserin (mikroaalto-, ei valolaite) jo 1954; Gould keksi termin LASER muttei ehtinyt patentoida ajoissa."
+  }
+},
+{
+  id:'teknologiat', act:'Näytös III', year:'1960–1988, laboratorioista tehtaisiin',
+  title:'Asehuone: kahdeksan työkalua, kahdeksan tehtävää',
+  narration:[
+    "Kun periaate oli todistettu, alkoi toinen kilpajuoksu: kuka löytää aineen, joka tekee laserista <em>käyttökelpoisen</em>. Joulukuussa 1960 Ali Javan rakentaa ensimmäisen jatkuvatoimisen kaasulaserin. 1962 Robert Hall ja Nick Holonyak puristavat koko laitteen mikrosirun kokoiseksi puolijohdediodiksi.",
+    "1988 Elias Snitzer ratkaisee viimeisen palan: kaksoisverhotun kuidun, joka mahdollistaa pumppudiodien tehokkaan kytkennän. Tästä syntyy nykypäivän hallitseva teollisuustyökalu — kuitulaser, jonka pinta-ala/tilavuussuhde estää ylikuumenemisen ja nostaa hyötysuhteen lähelle 50 %:a."
+  ],
+  secret:"Jokainen lasertyyppi on kompromissi kolmen muuttujan välillä: aallonpituus, teho ja hyötysuhde. Eksimeerilaser uhraa hyötysuhteen (2–5 %) saadakseen äärimmäisen lyhyen UV-aallonpituuden, jota mikrosirujen litografia vaatii — ilman tätä kompromissia nykyistä tietokonetta ei olisi olemassa.",
+  fate:{tag:"Kohtalo", text:"CO₂-laser, joka hallitsi teollisuutta vuosikymmeniä, on nyt hitaasti väistymässä kuitulaserille — vanha työjuhta jää historiaan samalla kun uusi ottaa sen tehtaat haltuunsa."},
+  q:{
+    prompt:"Miksi nelitasojärjestelmä (esim. kuitulaser) vaatii huomattavasti vähemmän pumppaustehoa kuin kolmitasojärjestelmä (esim. alkuperäinen rubiinilaser)?",
+    opts:[
+      "Koska neljä energiatasoa tuottaa neljä kertaa enemmän fotoneja",
+      "Koska alempi lasertaso tyhjenee nopeasti perustasolle, joten se pysyy lähes tyhjänä ja populaatioinversio syntyy helposti",
+      "Koska nelitasojärjestelmä ei tarvitse resonaattoria lainkaan",
+      "Koska neljä tasoa toimii vain kryogeenisissä lämpötiloissa"
+    ], correct:1,
+    explain:"Kolmitasojärjestelmässä yli puolet atomeista pitää nostaa ylätilaan ennen kuin vahvistus alkaa — energiasyöppöä. Nelitasojärjestelmässä alempi lasertaso on lähes aina tyhjä, joten pienikin pumppaus riittää."
+  }
+},
+{
+  id:'sovellukset', act:'Näytös IV', year:'Tänään, kaikkialla',
+  title:'Tehtäväkenttä: kuusi rintamaa',
+  narration:[
+    "Laser ei enää ole yksi laite — se on kuusi rinnakkaista imperiumia. Mikropiirin sisällä CO₂-laser höyrystää tinapisaroita 13,5 nanometrin valoksi, joka piirtää maailman kehittyneimmät transistorit. Merenpohjassa kilometrien kaapelissa 1550 nanometrin diodit kuljettavat jokaisen videopuhelusi.",
+    "Leikkuupöydällä kuitulaser hitsaa sähköauton akkukennoja kuparista, jota mikään perinteinen menetelmä ei pysty käsittelemään yhtä nopeasti. Silmäklinikalla eksimeerilaser muotoilee sarveiskalvoa mikrometrin tarkkuudella. Ja jossain autiomaassa 192 sädettä osuu samanaikaisesti nastan pään kokoiseen kapseliin — tavoitteena puhdas fuusioenergia."
+  ],
+  secret:"EUV-litografian koko maailmanlaajuinen tarjonta kulkee yhden ainoan hollantilaisyhtiön läpi. Jos tämä yksi tuotantolinja pysähtyisi, koko kehittyneimpien mikrosirujen valmistus maailmassa pysähtyisi sen mukana — yksi laserteknologia, yksi pullonkaula, koko digitaalinen talous.",
+  fate:null,
+  q:{
+    prompt:"Mikä laserperusteinen prosessi mahdollistaa alle 7 nanometrin mikropiirien valmistuksen?",
+    opts:[
+      "He-Ne-kaasulaserilla tehtävä viivakoodinluku",
+      "CO₂-laserilla höyrystetyn tinaplasman tuottama EUV-valo (13,5 nm)",
+      "Nd:YAG-laserin Q-kytkentä",
+      "QCL-laserin keskialueen infrapunasäteily"
+    ], correct:1,
+    explain:"EUV-litografia on koko nykyaikaisen mikropiiriteollisuuden pullonkaula ja samalla sen mahdollistaja — ilman laserilla tuotettua tinaplasmaa ei olisi 13,5 nm:n valoa piirtämään nanometriluokan rakenteita."
+  }
+},
+{
+  id:'talous', act:'Näytös V', year:'1970 → 2032, valtataistelu rahasta',
+  title:'Kolme vallanvaihtoa',
+  narration:[
+    "Ensin rahaa teki teollisuus: CO₂- ja Nd:YAG-laserit korvasivat mekaanisen leikkuun tehtailla 1970–90-luvuilla. Sitten valta siirtyi näkymättömään — 1990-luvun telecom-buumissa laserdiodit ja optiset vahvistimet rakensivat koko internetin selkärangan.",
+    "Nyt raha virtaa sinne, missä kukaan ei sitä näe: EUV-litografiaan, joka on noussut arvoltaan suurimmaksi yksittäiseksi laserperusteiseksi teknologiaksi maailmassa. Ja horisontissa siintää neljäs vallanvaihto — puolustusbudjettien pumppaama korkean energian laserien markkina kasvaa nyt nopeimmin kaikista segmenteistä."
+  ],
+  secret:"Korkean energian laserien markkinan ennustetaan kasvavan noin 16 %:n vuosivauhtia — nopeammin kuin mikään muu lasersegmentti. Kasvun taustalla ei ole siviiliteollisuus vaan puolustusbudjettien kasvu ympäri maailman.",
+  fate:null,
+  q:{
+    prompt:"Mikä lasersegmentti kasvaa ennusteiden mukaan (2025–2030) prosentuaalisesti nopeimmin?",
+    opts:[
+      "Teollisuuden kuitulaserit","Laseroptiikan komponentit","Korkean energian / puolustuslaserit","He-Ne-kaasulaserit"
+    ], correct:2,
+    explain:"Korkean energian laserien markkinan CAGR (~16 %) ylittää sekä teollisuuslaserien (~12–13 %) että laseroptiikan (~12 %) kasvuvauhdin — puolustusinvestoinnit ovat nyt nopein kasvumoottori."
+  }
+},
+{
+  id:'toimijat', act:'Näytös VI', year:'2025, pelilaudalla',
+  title:'Pelintekijät',
+  narration:[
+    "Yksi hollantilaisyhtiö, ASML, hallitsee EUV-litografiaa käytännössä yksin — vuoden 2025 liikevaihto 32,7 miljardia euroa. Yhdysvaltalainen Coherent Corp. kasvoi 23 % tekoälyn datakeskusten optisen infrastruktuurin ansiosta. Saksalainen perheyhtiö TRUMPF taistelee teollisuuden syklisyyttä vastaan, ja kiinalainen Han's Laser laajenee vauhdilla Aasian markkinoilla, joka kattaa jo lähes puolet koko teollisuuslasersektorista."
+  ],
+  secret:"Kun TRUMPF ilmoitti tilauskannan pudonneen 10,4 % yhdellä tilikaudella, se ei kertonut heikosta teknologiasta — vaan siitä, kuinka herkästi koko laserteollisuus heiluu tehtaiden investointisyklien mukana.",
+  fate:null,
+  q:{
+    prompt:"Mikä yhtiö on ainoa maailmassa, joka valmistaa EUV-litografiakoneita?",
+    opts:["IPG Photonics","ASML","Han's Laser","Lumentum"], correct:1,
+    explain:"ASML:n monopoliasema EUV-litografiassa tekee siitä koko kehittyneen mikropiiriteollisuuden strategisen pullonkaulan ja samalla yhden maailman arvokkaimmista teknologiayhtiöistä."
+  }
+},
+{
+  id:'rahoitus', act:'Näytös VII', year:'Rahan jäljet pimeässä',
+  title:'Kuka maksoi ennen kuin kukaan tiesi hyötyvänsä',
+  narration:[
+    "Ennen kuin laserista tuli bisnestä, se oli puhdasta uskoa: yliopistot ja puolustuslaboratoriot rahoittivat vuosikymmenten perustutkimusta ilman takeita tuotosta. Yhdysvaltain energiaministeriön Lawrence Livermore -laboratorio rahoittaa yhä 192-säteistä fuusiolaseria, jonka tavoite — nettoenergiavoitto — on ollut käsillä vuosikymmeniä.",
+    "Nykyään raha tulee monesta suunnasta yhtä aikaa: EU:n Horizon Europe -ohjelmat, yritysten omat satojen miljoonien T&K-budjetit, ja kasvava pääomasijoitusvirta kvanttifotoniikan startupeihin."
+  ],
+  secret:"Osa korkean energian laserien tutkimuksesta on edelleen turvallisuusluokiteltua — julkiset raportit kertovat vain murto-osan siitä, mitä puolustuslaboratorioissa todella kehitetään.",
+  fate:null,
+  q:{
+    prompt:"Mikä yhdysvaltalainen laboratorio rahoittaa ja ylläpitää 192-säteistä fuusiolaseria (National Ignition Facility)?",
+    opts:["MIT Lincoln Laboratory","Lawrence Livermore National Laboratory","Bell Labs","Fraunhofer ILT"], correct:1,
+    explain:"NIF sijaitsee Lawrence Livermoressa Kaliforniassa ja on osa Yhdysvaltain energiaministeriön ydinasetutkimuksen ja siviilifuusion risteyskohtaa."
+  }
+},
+{
+  id:'yhteiskunta', act:'Näytös VIII', year:'Näkymätön valtakunta',
+  title:'Mitä muuttui, kun kukaan ei huomannut',
+  narration:[
+    "Laser ei tunkeutunut arkeen räjähdysmäisesti — se hiipi sinne huomaamatta. Jokainen striimattu elokuva kulkee laserdiodin läpi merenpohjassa. Jokainen tekoälymalli on koulutettu siruilla, jotka olisivat mahdottomia ilman EUV-litografiaa. Jokainen LASIK-leikkaus on hetki, jolloin 1960-luvun kvanttiteoria kohtaa jonkun toisen silmän."
+  ],
+  secret:null,
+  fate:null,
+  q:{
+    prompt:"Mikä optinen komponentti mahdollistaa signaalin vahvistamisen valokuituverkossa täysin ilman sähköistä välivaihetta?",
+    opts:["QCL-vastaanotin","Erbiumseostettu kuituvahvistin (EDFA)","He-Ne-toistin","Eksimeerimodulaattori"], correct:1,
+    explain:"EDFA vahvistaa optisen signaalin suoraan valona — ilman tätä keksintöä mannerten välinen internetliikenne vaatisi valtavasti enemmän sähköistä signaalinkäsittelyä."
+  }
+},
+{
+  id:'haitat', act:'Näytös IX', year:'Varjopuoli',
+  title:'Sama valo, väärä osoite',
+  narration:[
+    "Ominaisuus, joka tekee laserista arvokkaan — tiivis, suunnattu energia — on täsmälleen sama ominaisuus, joka tekee siitä vaarallisen väärässä paikassa. Luokan 4 laser polttaa verkkokalvon pysyvästi murto-osassa sekuntia. Halpa laserosoitin suunnattuna lentokoneen ohjaamoon aiheuttaa vuosittain tuhansia vaaratilanteita ympäri maailman.",
+    "Ja suurimmassa mittakaavassa: kun yksi maa hallitsee kriittistä laserteknologiaa, siitä tulee vientivalvonnan ja geopolitiikan väline — teknologia, joka piirtää mikropiirejä, voi yhtäkkiä piirtää myös rajalinjoja suurvaltojen välille."
+  ],
+  secret:null,
+  fate:null,
+  q:{
+    prompt:"Mikä seuraavista on realistinen ja dokumentoitu laserin haittapuoli, ei pelkkä teoreettinen riski?",
+    opts:[
+      "Laserosoittimien suuntaaminen lentokoneiden ohjaamoihin aiheuttaa vuosittain vaaratilanteita",
+      "Kaikki laserit tuottavat radioaktiivista säteilyä",
+      "Laserit lämmittävät ilmakehää mitattavasti globaalisti",
+      "Laserit häiritsevät kaikkia langattomia verkkoja automaattisesti"
+    ], correct:0,
+    explain:"Laserosoittimien väärinkäyttö ilmaliikennettä vastaan on dokumentoitu, toistuva ja tunnistettu turvallisuusongelma monissa maissa — toisin kuin muut vastausvaihtoehdot, jotka eivät vastaa fysiikkaa."
+  }
+},
+{
+  id:'hallinta', act:'Näytös X', year:'Turvaverkko',
+  title:'Kuinka valo pidetään kurissa',
+  narration:[
+    "Laserturvallisuus on harvinainen esimerkki teknologia-alueesta, jolla sääntely ehti kehityksen tahtiin. IEC 60825 -standardi lokeroi jokaisen laserin luokkiin 1–4 tehon mukaan — luokitus, joka määrää suoraan tarvittavat suojalasit, interlock-lukitukset ja koulutusvaatimukset.",
+    "Kansainvälisellä tasolla YK:n asekonvention pöytäkirja IV kieltää tarkoituksella sokeuttavat laseraseet — harvinainen esimerkki teknologiasta, joka kiellettiin ennakoivasti ennen laajaa käyttöönottoa."
+  ],
+  secret:null,
+  fate:null,
+  q:{
+    prompt:"Mikä kansainvälinen standardi määrittelee laserlaitteiden turvallisuusluokat 1–4?",
+    opts:["ISO 9001","IEC 60825","GDPR","IATA DGR"], correct:1,
+    explain:"IEC 60825 on maailmanlaajuisesti käytetty laserturvallisuusstandardi, jonka luokitus ohjaa suoraan käytännön suojatoimia työpaikoilla ja laboratorioissa."
+  }
+},
+{
+  id:'tulevaisuus', act:'Näytös XI', year:'Seuraava raja',
+  title:'Kun kiinteä optiikka loppuu kesken',
+  narration:[
+    "Eksawattiluokan tehoissa lasit ja peilit eivät enää kestä — ne sulavat kenttävoimakkuuden ylittäessä aineen ionisaatiorajan. Ratkaisu ei ole parempi materiaali, vaan materiaalin korvaaminen kokonaan: plasmalla, joka on jo valmiiksi ionisoitunut eikä siksi voi vaurioitua samalla tavalla.",
+    "Kymmeniä kuituvahvistimia lukitaan vaiheeltaan yhteen koherentissa säteenyhdistämisessä. Heräteaaltokiihdytys kutistaa kilometrien hiukkaskiihdyttimet pöytäkokoon. Ja jossain autiomaassa 192 sädettä yrittää yhä uudelleen sytyttää oman pienen aurinkonsa."
+  ],
+  secret:null,
+  fate:null,
+  q:{
+    prompt:"Miksi plasma korvaa kiinteät peilit ja linssit äärimmäisen korkeissa (eksawattiluokan) tehoissa?",
+    opts:[
+      "Plasma on halvempaa kuin lasi",
+      "Plasma on jo täysin ionisoitunut, joten sillä ei ole samaa vauriokynnystä kuin kiinteällä materiaalilla",
+      "Plasma heijastaa valoa paremmin kuin hopeoidut peilit",
+      "Plasmaa voi käyttää vain huoneenlämmössä"
+    ], correct:1,
+    explain:"Kiinteät materiaalit vaurioituvat väistämättä, kun kenttävoimakkuus ylittää ionisaatiorajan — plasma on jo sen rajan takana, joten sillä ei ole perinteistä vauriokynnystä lainkaan."
+  }
+}
+];
+
+let mode = null;              // 'teacher' | 'student'
+let current = 0;              // current stage index
+let unlocked = 0;             // highest unlocked index (student mode)
+let answered = {};            // stageId -> {correct:bool, chosen:idx}
+
+function startAs(m){
+  mode = m;
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('topbar').style.display = 'block';
+  document.getElementById('roleBadge').textContent = m === 'teacher' ? 'OPETTAJA-TILA' : 'OPISKELIJA-TILA';
+  if(m === 'teacher'){
+    unlocked = STAGES.length - 1;
+    buildStageNav();
+    document.getElementById('stagenav').style.display = 'flex';
+    addExportButton();
+  }
+  renderStage(0);
+}
+
+function addExportButton(){
+  const nav = document.getElementById('stagenav');
+  const b = document.createElement('button');
+  b.className = 'snbtn';
+  b.style.marginLeft = 'auto';
+  b.style.color = 'var(--amber)';
+  b.style.borderColor = 'rgba(255,184,77,0.4)';
+  b.textContent = '📋 Koekysymykset';
+  b.onclick = showExamExport;
+  nav.appendChild(b);
+}
+
+function buildStageNav(){
+  const nav = document.getElementById('stagenav');
+  nav.innerHTML = '';
+  STAGES.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className = 'snbtn' + (i===current?' active':'') + (answered[s.id]&&answered[s.id].correct?' done':'');
+    b.textContent = (i+1)+'. '+s.title.split(' ').slice(0,2).join(' ');
+    b.onclick = ()=>renderStage(i);
+    nav.appendChild(b);
+  });
+}
+
+function updateProgress(){
+  const pct = ((current+1)/STAGES.length)*100;
+  document.getElementById('progressFill').style.width = pct+'%';
+}
+
+function renderStage(i){
+  current = i;
+  document.getElementById('examExport').style.display='none';
+  document.getElementById('finale').style.display='none';
+  document.getElementById('stageContainer').style.display='block';
+  if(mode==='teacher') buildStageNav();
+  updateProgress();
+  const s = STAGES[i];
+  const c = document.getElementById('stageContainer');
+  const isAnswered = answered[s.id];
+  const teacherReveal = mode==='teacher';
+
+  let optsHtml = s.q.opts.map((o,idx)=>{
+    let cls='opt';
+    if(isAnswered){
+      if(idx===s.q.correct) cls+=' correct';
+      else if(idx===isAnswered.chosen) cls+=' wrong';
+      cls+=' disabled';
+    } else if(teacherReveal){
+      cls+=' disabled';
+      if(idx===s.q.correct) cls+=' reveal-correct';
+    }
+    return `<button class="${cls}" onclick="answer(${idx})" ${(isAnswered||teacherReveal)?'disabled':''}>
+      <span class="letter">${String.fromCharCode(65+idx)}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if(isAnswered){
+    feedbackHtml = `<div class="feedback show ${isAnswered.correct?'ok':'no'}">${isAnswered.correct?'Oikein. ':'Ei ihan — oikea vastaus korostettu yllä. '}${s.q.explain}</div>`;
+  } else if(teacherReveal){
+    feedbackHtml = `<div class="feedback show ok">Vastausavain: ${s.q.explain}</div>`;
+  }
+
+  const canGoNext = mode==='teacher' ? true : (isAnswered && isAnswered.correct);
+  const isLast = i === STAGES.length-1;
+
+  c.innerHTML = `
+    <div class="stage">
+      <div class="act-tag">${s.act} · ${STAGES.length} osaa</div>
+      <h2 class="stage-title">${s.title}</h2>
+      <div class="stage-year">${s.year}</div>
+      <div class="narration">${s.narration.map(p=>`<p>${p}</p>`).join('')}</div>
+      ${s.secret ? `
+      <div class="secret">
+        <button class="secret-head" onclick="toggleSecret(this)">🔒 Paljasta pinnan alla piilotettu salaisuus <span class="chev">▾</span></button>
+        <div class="secret-body">${s.secret}</div>
+      </div>` : ''}
+      ${s.fate ? `<div class="fate"><div class="ftag">${s.fate.tag}</div><p>${s.fate.text}</p></div>` : ''}
+
+      <div class="qbox">
+        <div class="qlabel">Koekysymys · Näytös ${i+1}</div>
+        <div class="qtext">${s.q.prompt}</div>
+        <div class="opts">${optsHtml}</div>
+        ${feedbackHtml}
+      </div>
+
+      <div class="stage-actions">
+        <button class="btn ghost" onclick="prevStage()" ${i===0?'disabled':''} style="${i===0?'opacity:.3;pointer-events:none;':''}">← Edellinen</button>
+        ${isLast
+          ? `<button class="btn primary" onclick="showFinale()" ${canGoNext?'':'disabled'}>Päätä matka →</button>`
+          : `<button class="btn primary" onclick="nextStage()" ${canGoNext?'':'disabled'}>Seuraava näytös →</button>`
+        }
+      </div>
+    </div>
+  `;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleSecret(btn){
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+function answer(idx){
+  const s = STAGES[current];
+  const correct = idx === s.q.correct;
+  answered[s.id] = {correct, chosen: idx};
+  if(correct && mode==='student') unlocked = Math.max(unlocked, current+1);
+  renderStage(current);
+}
+
+function nextStage(){
+  if(current < STAGES.length-1) renderStage(current+1);
+}
+function prevStage(){
+  if(current>0) renderStage(current-1);
+}
+
+function showFinale(){
+  document.getElementById('stageContainer').style.display='none';
+  document.getElementById('finale').style.display='block';
+  document.getElementById('progressFill').style.width='100%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showExamExport(){
+  document.getElementById('stageContainer').style.display='none';
+  document.getElementById('finale').style.display='none';
+  const wrap = document.getElementById('examExport');
+  wrap.style.display='block';
+  const inner = document.getElementById('examListInner');
+  inner.innerHTML = STAGES.map((s,i)=>`
+    <div class="eitem">
+      <div class="en">${s.act} — ${s.title}</div>
+      <h4>${s.q.prompt}</h4>
+      <ol type="A">
+        ${s.q.opts.map((o,idx)=>`<li class="${idx===s.q.correct?'ans':''}">${o}${idx===s.q.correct?' ✓':''}</li>`).join('')}
+      </ol>
+    </div>
+  `).join('');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

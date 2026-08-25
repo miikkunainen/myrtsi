@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASER — Kvanteista kaupalliseen valtaan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0A0C10;
+  --bg-raise:#12151C;
+  --bg-raise-2:#171B24;
+  --line:rgba(255,255,255,0.08);
+  --line-soft:rgba(255,255,255,0.05);
+  --text:#E9ECF3;
+  --text-dim:#9099AC;
+  --text-faint:#5C6478;
+  --ruby:#FF2E4D;
+  --ruby-dim:#7A1B29;
+  --teal:#27DFC7;
+  --violet:#8B6CFF;
+  --amber:#FFB84D;
+  --serif:'Fraunces', Georgia, serif;
+  --sans:'Inter', -apple-system, sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--ruby);color:#fff;}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+@media(max-width:640px){.wrap{padding:0 20px;}}
+
+a{color:inherit;}
+
+/* ---------- NAV ---------- */
+nav.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,12,16,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.topnav-inner{
+  max-width:1180px;margin:0 auto;padding:14px 32px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.brand{font-family:var(--mono);font-size:13px;letter-spacing:0.12em;color:var(--text-dim);display:flex;align-items:center;gap:8px;}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:var(--ruby);box-shadow:0 0 8px var(--ruby);}
+.navlinks{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;font-size:12.5px;font-family:var(--mono);color:var(--text-faint);white-space:nowrap;}
+.navlinks::-webkit-scrollbar{display:none;}
+.navlinks a{text-decoration:none;transition:color .2s;padding:4px 0;border-bottom:1px solid transparent;}
+.navlinks a:hover{color:var(--teal);border-color:var(--teal);}
+@media(max-width:900px){.navlinks{display:none;}}
+
+/* ---------- HERO ---------- */
+.hero{padding:88px 0 40px;position:relative;}
+.eyebrow{
+  font-family:var(--mono);font-size:12.5px;letter-spacing:0.18em;color:var(--teal);
+  text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--teal);}
+h1.hero-title{
+  font-family:var(--serif);font-weight:600;
+  font-size:clamp(2.6rem,7vw,5.4rem);
+  line-height:0.98;letter-spacing:-0.015em;
+  max-width:900px;
+}
+h1.hero-title em{
+  font-style:italic;font-weight:500;color:var(--ruby);
+}
+.hero-lede{
+  margin-top:26px;font-size:clamp(1.02rem,1.6vw,1.22rem);color:var(--text-dim);
+  max-width:640px;font-weight:400;
+}
+.hero-stats{display:flex;gap:0;margin-top:52px;border-top:1px solid var(--line);flex-wrap:wrap;}
+.hstat{flex:1;min-width:150px;padding:20px 24px 20px 0;border-right:1px solid var(--line);}
+.hstat:last-child{border-right:none;}
+.hstat .num{font-family:var(--mono);font-size:1.9rem;font-weight:700;color:var(--text);}
+.hstat .num span{color:var(--ruby);}
+.hstat .lbl{font-size:12.5px;color:var(--text-faint);margin-top:4px;}
+@media(max-width:700px){.hstat{border-right:none;border-bottom:1px solid var(--line);padding:16px 0;}}
+
+/* ---------- SPECTRUM BAR (signature element) ---------- */
+.spectrum{margin-top:56px;}
+.spectrum-label{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);display:flex;justify-content:space-between;margin-bottom:8px;letter-spacing:0.06em;}
+.spectrum-track{
+  position:relative;height:10px;border-radius:6px;
+  background:linear-gradient(90deg,
+    #6b3fd6 0%, #8B6CFF 8%, #4a6bff 18%, #2fa8ff 26%,
+    #27DFC7 34%, #3fd97a 40%, #a8e034 46%, #ffe14d 52%,
+    #ffb84d 58%, #ff7a45 64%, #FF2E4D 70%, #c2213a 78%,
+    #7a1620 88%, #3a0a10 100%);
+  box-shadow:0 0 24px rgba(255,46,77,0.15);
+}
+.spec-mark{position:absolute;top:-5px;width:2px;height:20px;background:#fff;opacity:0.85;}
+.spec-mark .tip{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;color:var(--text-faint);white-space:nowrap;
+}
+.spec-mark .name{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:9.5px;color:var(--text-dim);white-space:nowrap;
+  opacity:0;transition:opacity .15s;
+}
+.spec-mark:hover .name{opacity:1;color:var(--teal);}
+.spectrum-ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-top:34px;}
+
+/* ---------- SECTION SCAFFOLD ---------- */
+section{padding:96px 0;border-top:1px solid var(--line-soft);}
+section:first-of-type{border-top:none;}
+.sec-head{max-width:720px;margin-bottom:52px;}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--ruby);letter-spacing:0.1em;margin-bottom:14px;}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,3.4vw,2.6rem);letter-spacing:-0.01em;}
+.sec-sub{color:var(--text-dim);margin-top:14px;font-size:1.02rem;max-width:620px;}
+
+/* ---------- CARD GRID ---------- */
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.g4,.g3,.g2{grid-template-columns:1fr;}}
+
+.card{background:var(--bg-raise);padding:26px 24px;position:relative;transition:background .2s;}
+.card:hover{background:var(--bg-raise-2);}
+.card .wl-badge{
+  display:inline-block;font-family:var(--mono);font-size:11px;color:var(--bg);
+  background:var(--teal);padding:3px 9px;border-radius:20px;font-weight:700;margin-bottom:14px;
+}
+.card h3{font-family:var(--serif);font-size:1.18rem;font-weight:600;margin-bottom:8px;}
+.card p{font-size:13.6px;color:var(--text-dim);}
+.card .meta{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11.5px;color:var(--text-faint);display:flex;justify-content:space-between;}
+.card .meta b{color:var(--text-dim);font-weight:600;}
+.mini-spec{position:relative;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);margin-top:16px;}
+.mini-spec .pt{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg-raise);}
+
+/* ---------- TIMELINE ---------- */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:1px;background:linear-gradient(var(--ruby),var(--teal));}
+.tl-item{position:relative;padding-bottom:34px;}
+.tl-item::before{content:'';position:absolute;left:-32px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2px solid var(--ruby);}
+.tl-item.future::before{border-color:var(--teal);border-style:dashed;}
+.tl-year{font-family:var(--mono);font-weight:700;color:var(--ruby);font-size:13.5px;}
+.tl-item.future .tl-year{color:var(--teal);}
+.tl-title{font-family:var(--serif);font-size:1.12rem;font-weight:600;margin-top:4px;}
+.tl-desc{color:var(--text-dim);font-size:13.8px;margin-top:5px;max-width:640px;}
+
+/* ---------- ERA CARDS (talous) ---------- */
+.era-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:44px;}
+@media(max-width:900px){.era-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.era-row{grid-template-columns:1fr;}}
+.era{background:var(--bg-raise);padding:24px 22px;}
+.era .era-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;color:var(--text-faint);text-transform:uppercase;}
+.era .era-period{font-family:var(--mono);font-size:12.5px;color:var(--teal);margin-top:4px;}
+.era h4{font-family:var(--serif);font-size:1.15rem;margin-top:10px;font-weight:600;}
+.era p{font-size:13px;color:var(--text-dim);margin-top:8px;}
+
+.chart-box{background:var(--bg-raise);border:1px solid var(--line);border-radius:14px;padding:28px 26px;margin-bottom:28px;}
+.chart-box h4{font-family:var(--serif);font-size:1.15rem;font-weight:600;margin-bottom:4px;}
+.chart-box .note{font-size:12px;color:var(--text-faint);margin-bottom:18px;}
+.chart-canvas-wrap{position:relative;height:340px;}
+
+/* ---------- TOIMIJAT ---------- */
+.player{background:var(--bg-raise);padding:26px 24px;position:relative;}
+.player .rev{font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--ruby);}
+.player .rev-sub{font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+.player h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin-top:12px;}
+.player p{font-size:13px;color:var(--text-dim);margin-top:6px;}
+
+/* ---------- LIST STYLE (rahoitus / haitat / hallinta) ---------- */
+.stack{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.stack-item{background:var(--bg-raise);padding:22px 26px;display:grid;grid-template-columns:200px 1fr;gap:24px;}
+@media(max-width:700px){.stack-item{grid-template-columns:1fr;gap:8px;}}
+.stack-item .who{font-family:var(--mono);font-size:12.5px;color:var(--teal);font-weight:600;letter-spacing:0.02em;}
+.stack-item .what h4{font-family:var(--serif);font-weight:600;font-size:1.08rem;margin-bottom:6px;}
+.stack-item .what p{font-size:13.6px;color:var(--text-dim);}
+
+.warn-stack .who{color:var(--ruby);}
+.fix-stack .who{color:var(--amber);}
+
+/* ---------- FOOTER ---------- */
+footer{padding:60px 0 70px;border-top:1px solid var(--line-soft);}
+footer .wrap{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+footer .fnote{font-size:12px;color:var(--text-faint);max-width:520px;line-height:1.7;}
+footer .fbrand{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
+.reveal.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none;}
+  html{scroll-behavior:auto;}
+}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--text-dim);margin-right:6px;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="brand"><span class="dot"></span>LASER · OPETUSMATERIAALI</div>
+    <div class="navlinks">
+      <a href="#fysiikka">Fysiikka</a>
+      <a href="#teknologiat">Teknologiat</a>
+      <a href="#historia">Historia</a>
+      <a href="#sovellukset">Sovellukset</a>
+      <a href="#talous">Talous</a>
+      <a href="#toimijat">Toimijat</a>
+      <a href="#rahoitus">Rahoitus</a>
+      <a href="#yhteiskunta">Yhteiskunta</a>
+      <a href="#haitat">Haitat</a>
+      <a href="#hallinta">Hallinta</a>
+      <a href="#tulevaisuus">Tulevaisuus</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Light Amplification by Stimulated Emission of Radiation</div>
+    <h1 class="hero-title">Kvantista <em>koherenssiin</em>,<br>koherenssista valtaan.</h1>
+    <p class="hero-lede">Laser syntyi yhdestä Einsteinin ajatuskokeesta vuonna 1916 ja kasvoi 1960-luvun laboratoriokuriositeetista teolliseksi voimaksi, joka leikkaa sähköautojen akkuja, siirtää internetin dataliikenteen ja piirtää maailman kehittyneimmät mikrosirut. Tämä materiaali käy läpi teknologian, taloudellisen vallan, hyödyt ja riskit.</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="num">1916→<span>2026</span></div><div class="lbl">Teoriasta 60 gigawatin plasmafysiikkaan</div></div>
+      <div class="hstat"><div class="num">~<span>30</span> mrd. $</div><div class="lbl">Laserteknologian markkina 2025</div></div>
+      <div class="hstat"><div class="num"><span>€32,7</span> mrd.</div><div class="lbl">ASML:n liikevaihto 2025 — EUV-litografian ytimessä laser-tuotettu plasma</div></div>
+      <div class="hstat"><div class="num">Luokka <span>1–4</span></div><div class="lbl">IEC 60825 -turvallisuusluokitus</div></div>
+    </div>
+
+    <div class="spectrum reveal">
+      <div class="spectrum-label"><span>UV — LYHYT AALLONPITUUS</span><span>MID-IR — PITKÄ AALLONPITUUS</span></div>
+      <div class="spectrum-track">
+        <div class="spec-mark" style="left:5.5%"><span class="name">ArF-eksimeeri</span><span class="tip">193 nm</span></div>
+        <div class="spec-mark" style="left:21.6%"><span class="name">GaN-diodi</span><span class="tip">405 nm</span></div>
+        <div class="spec-mark" style="left:33.3%"><span class="name">Rubiini (1960)</span><span class="tip">694 nm</span></div>
+        <div class="spec-mark" style="left:41.9%"><span class="name">Kuitulaser (Yb)</span><span class="tip">1030 nm</span></div>
+        <div class="spec-mark" style="left:50.7%"><span class="name">Telecom-diodi</span><span class="tip">1550 nm</span></div>
+        <div class="spec-mark" style="left:93.8%"><span class="name">QCL</span><span class="tip">7,5 µm</span></div>
+        <div class="spec-mark" style="left:99.2%"><span class="name">CO₂-laser</span><span class="tip">10,6 µm</span></div>
+      </div>
+      <div class="spectrum-ends"><span>150 nm</span><span>logaritminen asteikko</span><span>15 000 nm</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FYSIIKKA ============ -->
+<section id="fysiikka">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">01 — PERIAATE</div>
+      <h2>Kolme ehtoa koherentille valolle</h2>
+      <p class="sec-sub">Jokainen laser — oli se sitten rubiinikide vuodelta 1960 tai NIF:in 192-säteinen fuusiolaitos — nojaa samaan kolmeen fysikaaliseen elementtiin.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card">
+        <div class="wl-badge">01</div>
+        <h3>Stimuloitu emissio</h3>
+        <p>Einstein osoitti 1916, että oikean energian fotoni voi pakottaa virittyneen atomin vapauttamaan täsmälleen samanlaisen kopion itsestään — sama suunta, vaihe ja aallonpituus. Tästä syntyy koherenssi, jota tavallinen hehkulampun satunnainen säteily ei koskaan saavuta.</p>
+      </div>
+      <div class="card">
+        <div class="wl-badge">02</div>
+        <h3>Populaatioinversio</h3>
+        <p>Jotta valo vahvistuisi vaimenemisen sijaan, ylemmällä energiatasolla on oltava enemmän atomeja kuin alemmalla. Nelitasojärjestelmä tekee tästä tehokasta: alempi lasertaso tyhjenee salamannopeasti, joten pienikin pumppaus riittää jatkuvaan toimintaan.</p>
+      </div>
+      <div class="card">
+        <div class="wl-badge">03</div>
+        <h3>Optinen resonaattori</h3>
+        <p>Kaksi peiliä aktiivisen aineen molemmin puolin — toinen täysin heijastava, toinen osittain läpäisevä — pakottaa fotonit kimpoilemaan edestakaisin, kunnes lumivyörymäinen vahvistus purkautuu ulos kapeana, suunnattuna säteenä.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEKNOLOGIAT ============ -->
+<section id="teknologiat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">02 — TEKNOLOGIAT</div>
+      <h2>Kahdeksan työjuhtaa</h2>
+      <p class="sec-sub">Aktiivinen väliaine ratkaisee aallonpituuden, hyötysuhteen ja käyttökohteen. Yhtä ainoaa "parasta laseria" ei ole — jokainen tyyppi omistaa oman kapean sovellusalueensa.</p>
+    </div>
+    <div class="grid g4 reveal">
+
+      <div class="card">
+        <div class="wl-badge" style="background:var(--teal)">1030–1080 nm</div>
+        <h3>Kuitulaser (Yb)</h3>
+        <p>Vahvistus kymmeniä metrejä pitkässä ohuessa lasikuidussa. Valtava pinta-ala/tilavuussuhde estää ylikuumenemisen; hyötysuhde 40–50 %.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>40–50 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:#c9d94d;color:#1a1a05">1064 nm</div>
+        <h3>Nd:YAG / kiinteä olomuoto</h3>
+        <p>Neodyymiseostettu kide tuottaa korkean pulssienergian ja Q-kytkennän. Lämpölinssi-ilmiö rajoittaa keskitehon skaalausta.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>10–25 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:var(--amber);color:#2a1a00">375–1550 nm</div>
+        <h3>Puolijohdediodi</h3>
+        <p>Mikrosirukokoinen p-n-liitos. Halvin ja tehokkain laserlähde — pyörittää valokuitutietoliikennettä ja pumppaa isompia lasereita.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>50–70 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:var(--violet)">193 / 248 nm</div>
+        <h3>Eksimeerilaser</h3>
+        <p>Jalokaasu-halogeenimolekyylit syvässä UV:ssa. Äärimmäinen fotonienergia mikropiirien litografiaan ja LASIK-silmäkirurgiaan.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>2–5 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:var(--ruby)">9,4–10,6 µm</div>
+        <h3>CO₂-molekyylikaasulaser</h3>
+        <p>Edullinen ja korkeatehoinen, mutta pitkä aallonpituus rajoittaa fokusointitarkkuutta. Vanhin teollinen työjuhta — väistymässä kuitulasereille.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>10–15 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:#8a4a2a">3–12 µm</div>
+        <h3>Kvanttikaskadilaser (QCL)</h3>
+        <p>Keinotekoiset nano-kvanttikaivot: yksi elektroni tuottaa sarjan fotoneja. Ainoa suora lähde keskialueen infrapunaan — kaasujen tunnistukseen.</p>
+        <div class="meta"><span>Hyötysuhde</span><b>5–20 %</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:#e05a5a">632,8 nm</div>
+        <h3>He-Ne-kaasulaser</h3>
+        <p>Vuoden 1960 läpimurto: ensimmäinen jatkuvatoiminen laser. Poikkeuksellisen puhdas spektri — yhä opetuksessa ja mittalaitteissa.</p>
+        <div class="meta"><span>Rooli</span><b>historiallinen</b></div>
+      </div>
+
+      <div class="card">
+        <div class="wl-badge" style="background:#fff;color:#111">fs–as</div>
+        <h3>Ultranopeat / titaanisafiiri</h3>
+        <p>Moodilukitut laserit tuottavat femto- ja attosekuntipulsseja. Työkalu elektronien liikkeen kuvaamiseen atomitason aikaskaalalla.</p>
+        <div class="meta"><span>Aikaresoluutio</span><b>10⁻¹⁸ s</b></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ HISTORIA ============ -->
+<section id="historia">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">03 — KEHITYSHISTORIA</div>
+      <h2>66 vuotta laboratoriosta teollisuuteen</h2>
+      <p class="sec-sub">Kilpajuoksu mikroaalloilta näkyvään valoon kesti vuosikymmenen; siitä eteenpäin jokainen vuosikymmen on tuonut uuden lasertyypin ja uuden teollisuudenalan.</p>
+    </div>
+    <div class="timeline reveal">
+      <div class="tl-item"><div class="tl-year">1916</div><div class="tl-title">Stimuloidun emission teoria</div><div class="tl-desc">Albert Einstein kuvaa kolmannen säteilymekanismin absorption ja spontaanin emission rinnalle — perusta koko alalle.</div></div>
+      <div class="tl-item"><div class="tl-year">1954</div><div class="tl-title">Ensimmäinen maseri</div><div class="tl-desc">Charles Townes, James Gordon ja Herbert Zeiger osoittavat stimuloidun emission toimivan 24 GHz:n mikroaaltotaajuudella ammoniakkimaserissa.</div></div>
+      <div class="tl-item"><div class="tl-year">1957–58</div><div class="tl-title">Nimi ja avoin resonaattori</div><div class="tl-desc">Gordon Gould keksii akronyymin LASER; Townes ja Schawlow julkaisevat teoreettisen mallin avoimesta Fabry–Pérot-resonaattorista optisille aallonpituuksille.</div></div>
+      <div class="tl-item"><div class="tl-year">1960</div><div class="tl-title">Ensimmäinen toimiva laser</div><div class="tl-desc">Theodore Maiman saa 16.5.1960 synteettisen rubiinikiteen hohtamaan koherenttia punaista valoa Hughes Research Laboratoriesilla. Samana vuonna Ali Javan esittelee jatkuvatoimisen He-Ne-kaasulaserin.</div></div>
+      <div class="tl-item"><div class="tl-year">1962</div><div class="tl-title">Puolijohdelaserdiodi</div><div class="tl-desc">Robert Hall ja Nick Holonyak rakentavat ensimmäiset galliumarsenidi-laserdiodit — pohja koko tietoliikenneteollisuudelle.</div></div>
+      <div class="tl-item"><div class="tl-year">1988</div><div class="tl-title">Kaksoisverhottu kuitulaser</div><div class="tl-desc">Elias Snitzer mahdollistaa monimuotoisten pumppudiodien tehokkaan kytkennän — avaa tien kilowattiluokan teollisille kuitulasereille.</div></div>
+      <div class="tl-item"><div class="tl-year">2000-l.</div><div class="tl-title">EUV-litografia kaupallistuu</div><div class="tl-desc">CO₂-laserilla höyrystetty tinaplasma alkaa tuottaa 13,5 nm:n valoa kehittyneimpien mikropiirien valmistukseen.</div></div>
+      <div class="tl-item"><div class="tl-year">2020-l.</div><div class="tl-title">Koherentti säteenyhdistäminen</div><div class="tl-desc">Kymmeniä kuituvahvistinkanavia lukitaan vaiheeltaan yhteen — yksittäisen kuidun tehoraja ylitetään yhdistämällä.</div></div>
+      <div class="tl-item future"><div class="tl-year">Tulevaisuus</div><div class="tl-title">Plasmaoptiikka ja fuusioenergia</div><div class="tl-desc">Kiinteät peilit korvataan plasmalla eksawattiluokan tehoilla; NIF-tyyppiset laitokset tavoittelevat nettovoittoa fuusioreaktiosta.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOVELLUKSET ============ -->
+<section id="sovellukset">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">04 — SOVELLUSALUEET</div>
+      <h2>Kuusi toimialaa, joita laser pyörittää</h2>
+      <p class="sec-sub">Laser on siirtynyt kuriositeetista kriittiseksi infrastruktuuriksi — sitä ei enää huomaa, koska se on kaikkialla.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card">
+        <h3>Mikroelektroniikka</h3>
+        <p>EUV-litografia (13,5 nm) tuottaa tinaplasman CO₂-laserilla kehittyneimpien &lt;7 nm -mikropiirien valmistukseen. Syvä-UV ArF-eksimeerilaserit hoitavat edeltävät prosessivaiheet.</p>
+        <div class="tag">EUV</div><div class="tag">DUV-litografia</div>
+      </div>
+      <div class="card">
+        <h3>Raskas teollisuus</h3>
+        <p>Kilowattiluokan kuitu- ja kiinteän olomuodon laserit ovat syrjäyttäneet mekaanisen leikkuun ja hitsauksen. Kupari- ja alumiinihitsaus mahdollistaa sähköautojen akkutuotannon; metallijauheen 3D-tulostus (L-PBF) valmistaa ilmailukomponentteja.</p>
+        <div class="tag">Leikkaus</div><div class="tag">Hitsaus</div><div class="tag">3D-tulostus</div>
+      </div>
+      <div class="card">
+        <h3>Optinen tietoliikenne</h3>
+        <p>Kapealinjaiset DFB-laserdiodit 1550 nm:n ikkunassa siirtävät globaalin internetin datan. Aallonpituusjakoinen multipleksointi ajaa satoja kanavia samaan kuituun; erbiumvahvistimet (EDFA) vahvistavat signaalin täysin optisesti.</p>
+        <div class="tag">WDM</div><div class="tag">EDFA</div><div class="tag">Merikaapelit</div>
+      </div>
+      <div class="card">
+        <h3>Lääketiede</h3>
+        <p>LASIK ja SMILE muotoilevat sarveiskalvoa submikrometritarkkuudella. Fotodynaaminen terapia aktivoi syöpälääkkeen valolla; optiset pinsetit liikuttavat yksittäisiä soluja ja DNA-molekyylejä.</p>
+        <div class="tag">LASIK</div><div class="tag">PDT</div><div class="tag">Optiset pinsetit</div>
+      </div>
+      <div class="card">
+        <h3>Tiede ja metrologia</h3>
+        <p>LIGO ja Virgo havaitsevat peilien 10⁻¹⁹ metrin etäisyysmuutoksia stabiloiduilla lasereilla. Titaanisafiirilaserit tuottavat attosekuntipulsseja elektronien seuraamiseen; NIF tavoittelee fuusion nettovoittoa 192 sädettä.</p>
+        <div class="tag">LIGO</div><div class="tag">Attosekuntifysiikka</div><div class="tag">NIF-fuusio</div>
+      </div>
+      <div class="card">
+        <h3>Puolustus ja turvallisuus</h3>
+        <p>Kymmenien–satojen kilowattien kuitulaserpohjaiset suunnatun energian järjestelmät torjuvat lennokkeja, raketteja ja tykistökranaatteja. Esimerkiksi Lockheed Martin on tilannut korkean energian laserjärjestelmiä ilmatorjuntaan.</p>
+        <div class="tag">DEW</div><div class="tag">Counter-UAS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TALOUS ============ -->
+<section id="talous">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">05 — KAUPALLINEN ARVO AJASSA</div>
+      <h2>Mikä on ollut, on nyt ja tulee olemaan suurin bisnes</h2>
+      <p class="sec-sub">Laserin taloudellinen painopiste on siirtynyt kolmesti: teollisesta työstöstä tietoliikenteeseen, sieltä puolijohdevalmistukseen, ja on nyt siirtymässä puolustukseen ja energiaan.</p>
+    </div>
+
+    <div class="era-row reveal">
+      <div class="era">
+        <div class="era-tag">Oli</div>
+        <div class="era-period">n. 1970–1995</div>
+        <h4>Teollinen työstö &amp; tiede</h4>
+        <p>CO₂- ja Nd:YAG-laserit korvaavat mekaanisen leikkuun tehtaissa. Tiede- ja puolustuslaboratoriot rahoittavat perustutkimusta.</p>
+      </div>
+      <div class="era">
+        <div class="era-tag">Oli</div>
+        <div class="era-period">n. 1995–2015</div>
+        <h4>Optinen tietoliikenne</h4>
+        <p>Puolijohdelaserdiodit ja EDFA-vahvistimet rakentavat globaalin internetin selkärangan — telecom-buumi on 1990-luvun suurin laserbisnes.</p>
+      </div>
+      <div class="era">
+        <div class="era-tag">On nyt</div>
+        <div class="era-period">2015–2026</div>
+        <h4>Puolijohdevalmistus</h4>
+        <p>EUV-litografia on noussut arvoltaan suurimmaksi yksittäiseksi laserperusteiseksi teknologiaksi: ASML:n 32,7 mrd. €:n liikevaihdosta merkittävä ja kasvava osa tulee EUV-järjestelmistä.</p>
+      </div>
+      <div class="era">
+        <div class="era-tag">Tulee olemaan</div>
+        <div class="era-period">2026→</div>
+        <h4>Puolustus &amp; energia</h4>
+        <p>Korkean energian laserien markkina kasvaa ennusteiden mukaan nopeimmin (CAGR n. 16 %) puolustusbudjettien myötä; pitkällä aikavälillä laserherätteinen fuusioenergia ja koherentti säteenyhdistäminen tavoittelevat seuraavaa murrosta.</p>
+      </div>
+    </div>
+
+    <div class="chart-box reveal">
+      <h4>Lasermarkkinoiden kasvu segmenteittäin</h4>
+      <div class="note">Arvio raportoitujen 2025-arvojen ja ilmoitettujen CAGR-lukujen perusteella (Marketsandmarkets, Fortune Business Insights, The Business Research Company). Käyrät ovat suuntaa-antavia interpolointeja, eivät virallista vuosidataa.</div>
+      <div class="chart-canvas-wrap"><canvas id="marketChart"></canvas></div>
+    </div>
+
+    <div class="chart-box reveal">
+      <h4>Suurimmat pörssiyhtiöt liikevaihdon mukaan (2025)</h4>
+      <div class="note">ASML on litografiayhtiö, jonka ydinteknologia (EUV) on laserlla tuotettu plasma — otettu mukaan kokoluokan havainnollistamiseksi, ei puhtaana "laserlaite"-yhtiönä.</div>
+      <div class="chart-canvas-wrap"><canvas id="playerChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOIMIJAT ============ -->
+<section id="toimijat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">06 — SUURIMMAT TOIMIJAT</div>
+      <h2>Kuka tekee liikevaihtoa lasereilla</h2>
+      <p class="sec-sub">Ala on konsolidoitunut: muutama toimija hallitsee suurinta osaa kustakin segmentistä.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="player">
+        <div class="rev">€32,7 mrd.</div>
+        <div class="rev-sub">2025 · koko liikevaihto</div>
+        <h3>ASML (Alankomaat)</h3>
+        <p>Ainoa valmistaja maailmassa, joka tekee EUV-litografiakoneita. EUV- ja High-NA-EUV-järjestelmät kattoivat 48 % järjestelmäliikevaihdosta 2025. Yhtiö arvioi vuoden 2030 liikevaihdoksi 44–60 mrd. €.</p>
+      </div>
+      <div class="player">
+        <div class="rev">$5,81 mrd.</div>
+        <div class="rev-sub">tilikausi 2025 (+23 %)</div>
+        <h3>Coherent Corp. (USA)</h3>
+        <p>Globaali fotoniikkajohtaja materiaaleissa, verkoissa ja lasereissa. Kasvu kiihtyi voimakkaasti tekoälyn datakeskusten optisten liitäntöjen kysynnän myötä.</p>
+      </div>
+      <div class="player">
+        <div class="rev">$1,00 mrd.</div>
+        <div class="rev-sub">2025 (+3 %)</div>
+        <h3>IPG Photonics (USA)</h3>
+        <p>Kuitulaserpioneeri, 86 % liikevaihdosta materiaalityöstöstä. Kasvava puolustusliiketoiminta (CROSSBOW-korkeaenergialaserit) ja lääketieteen sovellukset.</p>
+      </div>
+      <div class="player">
+        <div class="rev">$5,08 mrd.</div>
+        <div class="rev-sub">tilausvarasto 2023/24</div>
+        <h3>TRUMPF (Saksa)</h3>
+        <p>Perheyhtiö, joka yhdistää laserit älykkääseen automaatioon. Vahva autoteollisuudessa, lääketieteen tekniikassa ja tarkkuusvalmistuksessa — herkkä teollisuuden investointisykleille.</p>
+      </div>
+      <div class="player">
+        <div class="rev">Top 5</div>
+        <div class="rev-sub">&gt;60 % kuitulasermarkkinasta</div>
+        <h3>Han's Laser (Kiina)</h3>
+        <p>Suurin kiinalainen toimija; hallitsee pakkaus-, elektroniikka- ja energiasovellusten laserlaitteita. Osa laajempaa aasialaista markkinaosuuden kasvua — Aasian ja Tyynenmeren alue kattaa noin puolet teollisuuslasermarkkinasta.</p>
+      </div>
+      <div class="player">
+        <div class="rev">Erikoistujat</div>
+        <div class="rev-sub">niche-johtajuus</div>
+        <h3>Lumentum &amp; nLIGHT (USA)</h3>
+        <p>Telekom- ja UV-kuitulaserien erikoisosaajia — flex-piirien leikkuu, OLED-korjaus ja optiset komponentit datakeskuksille.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RAHOITUS ============ -->
+<section id="rahoitus">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">07 — TUTKIMUKSEN RAHOITUS</div>
+      <h2>Kuka maksaa läpimurrot ennen kuin ne ovat bisnestä</h2>
+      <p class="sec-sub">Laserfysiikan historia on esimerkki siitä, miten vuosikymmenten julkinen perustutkimusrahoitus muuttuu vasta myöhemmin biljoonien arvoiseksi teollisuudeksi.</p>
+    </div>
+    <div class="stack reveal">
+      <div class="stack-item">
+        <div class="who">Valtiolliset laboratoriot</div>
+        <div class="what"><h4>Puolustus- ja energiaministeriöt</h4><p>Yhdysvaltain energiaministeriön Lawrence Livermore National Laboratory rahoittaa National Ignition Facilityn 192-säteistä fuusiolaseria; puolustusministeriöiden budjetit rahoittavat suunnatun energian asejärjestelmiä ja korkeaenergiaisten laserien kehitystä.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Yliopistot &amp; yrityslaboratoriot</div>
+        <div class="what"><h4>Bell Labs, Columbia, Fraunhofer</h4><p>Itse laserin keksintö syntyi yliopistollisen perustutkimuksen (Columbia, Bell Labs) ja Neuvostoliiton Lebedev-instituutin rinnakkaisesta kilpailusta. Saksassa Fraunhofer-instituutit yhdistävät edelleen julkista rahoitusta teollisuuden soveltavaan T&amp;K:hon.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">EU ja kansalliset ohjelmat</div>
+        <div class="what"><h4>Horizon Europe &amp; Photonics21</h4><p>Euroopan unionin tutkimuspuiteohjelmat ja eurooppalainen fotoniikkateollisuuden yhteenliittymä Photonics21 suuntaavat rahoitusta fotoniikan arvoketjuun — optiikasta laitteisiin.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Yritysten oma T&amp;K</div>
+        <div class="what"><h4>ASML, Coherent, IPG</h4><p>Suurimmat toimijat käyttävät satoja miljoonia dollareita vuodessa omaan tuotekehitykseen — esimerkiksi IPG Photonics investoi vuonna 2025 noin 117 miljoonaa dollaria T&amp;K:hon.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Pääomasijoittajat</div>
+        <div class="what"><h4>Fotoniikka- ja kvanttistartupit</h4><p>Riskirahoitus virtaa yhä enemmän integroidun fotoniikan, kvanttilaskennan optisten komponenttien ja langattoman lasertehonsiirron startup-yrityksiin.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Suomi &amp; Pohjoismaat</div>
+        <div class="what"><h4>VTT, yliopistot, Photonics Finland</h4><p>Suomessa fotoniikan tutkimusta ja teollista soveltamista viedään eteenpäin muun muassa VTT:n, yliopistojen valokuituosaamisen ja kotimaisten laserdiodivalmistajien kautta osana laajempaa pohjoismaista fotoniikkaklusteria.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ YHTEISKUNTA ============ -->
+<section id="yhteiskunta">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">08 — YHTEISKUNNALLINEN VAIKUTUS</div>
+      <h2>Miten laser on muuttanut arkea</h2>
+      <p class="sec-sub">Laser ei näy arjessa suoraan, mutta se on infrastruktuurin näkymätön kerros lähes kaikkialla.</p>
+    </div>
+    <div class="grid g2 reveal">
+      <div class="card">
+        <h3>Globaali internet</h3>
+        <p>Jokainen valokuituyhteys nojaa laserdiodeihin ja optisiin vahvistimiin. Ilman niitä nykyistä datamäärää ei voisi siirtää — koko digitaalinen talous, etätyö ja striimauspalvelut nojaavat tähän näkymättömään kerrokseen.</p>
+      </div>
+      <div class="card">
+        <h3>Laskentateho ja tekoäly</h3>
+        <p>Jokainen kehittynyt suoritin syntyy EUV- ja DUV-litografian kautta. Tekoälyn laskentatehon kasvu on suoraan sidoksissa siihen, kuinka pieniä rakenteita laser pystyy piirtämään piikiekolle.</p>
+      </div>
+      <div class="card">
+        <h3>Terveydenhuolto</h3>
+        <p>Silmäkirurgia, verisuoniepämuodostumien hoito, syövän fotodynaaminen terapia ja tarkka kudostyöstö ilman lämpövaurioita ovat siirtäneet toimenpiteitä turvallisemmiksi ja nopeammiksi.</p>
+      </div>
+      <div class="card">
+        <h3>Valmistus ja sähköistyminen</h3>
+        <p>Kuparin ja alumiinin laserhitsaus on käytännön edellytys sähköautojen akkutuotannolle laajassa mittakaavassa — perinteiset menetelmät eivät skaalaudu samalla nopeudella ja tarkkuudella.</p>
+      </div>
+      <div class="card">
+        <h3>Tieteellinen ymmärrys</h3>
+        <p>Gravitaatioaaltojen havaitseminen LIGO:lla ja attosekuntifysiikka ovat avanneet ikkunoita ilmiöihin, jotka olivat ennen lasereita mittaamattomissa.</p>
+      </div>
+      <div class="card">
+        <h3>Arkiset mittalaitteet</h3>
+        <p>Viivakoodinlukijat, etäisyys- ja tasolaserit rakennustyömailla, 3D-skannerit ja tulostimet ovat kaikki suoraa perua samasta kvanttimekaanisesta periaatteesta kuin sotilaslaser tai fuusiolaitos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HAITAT ============ -->
+<section id="haitat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">09 — RISKIT JA HAITTAPUOLET</div>
+      <h2>Missä koherentti valo on vaarallista</h2>
+      <p class="sec-sub">Sama ominaisuus, joka tekee laserista hyödyllisen — tiivis, suunnattu energia — tekee siitä myös riskin, kun se osuu väärään paikkaan.</p>
+    </div>
+    <div class="stack warn-stack reveal">
+      <div class="stack-item">
+        <div class="who">Silmä- ja ihovauriot</div>
+        <div class="what"><h4>Suora tai heijastunut säteily</h4><p>Luokan 3B ja 4 laserit voivat aiheuttaa pysyviä verkkokalvovaurioita jo hetkessä, koska silmä fokusoi säteen entisestään. Iho voi saada palovammoja suurtehoisista teollisuuslasereista.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Työturvallisuus</div>
+        <div class="what"><h4>Höyryt, savut ja sähköjärjestelmät</h4><p>Metallin laserleikkuu ja -hitsaus vapauttavat metallihöyryjä ja hienojakoisia hiukkasia; suurtehoisten pumppulähteiden korkeajännitejärjestelmät tuovat oman sähköturvallisuusriskinsä.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Sotilaallinen ja siviilikäytön väärinkäyttö</div>
+        <div class="what"><h4>Asejärjestelmät ja häirintä</h4><p>Suunnatun energian asejärjestelmät herättävät eskalaatiokysymyksiä; halvat laserosoittimet aiheuttavat vuosittain tuhansia vaaratilanteita, kun niitä suunnataan lentokoneiden ohjaamoihin.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Energiankulutus</div>
+        <div class="what"><h4>Suurtehojärjestelmien ympäristövaikutus</h4><p>EUV-litografia, fuusiotutkimuksen laitokset ja korkeaenergiaiset teollisuuslaserit kuluttavat merkittäviä määriä sähköä — osa laajempaa keskustelua datakeskusten ja huipputeknologian energiajalanjäljestä.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Geopoliittinen keskittyminen</div>
+        <div class="what"><h4>Vientivalvonta ja toimitusketjut</h4><p>EUV-litografian ydinosaaminen on käytännössä yhden yhtiön hallussa, ja Alankomaiden ja Yhdysvaltojen vientirajoitukset Kiinaan ovat tehneet lasertekniikasta suurvaltapolitiikan välineen.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HALLINTA ============ -->
+<section id="hallinta">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">10 — RISKIENHALLINTA</div>
+      <h2>Miten haittoja hallitaan käytännössä</h2>
+      <p class="sec-sub">Laserturvallisuus on yksi harvoista teknologia-alueista, jolla kansainvälinen standardointi on pysynyt kehityksen tahdissa.</p>
+    </div>
+    <div class="stack fix-stack reveal">
+      <div class="stack-item">
+        <div class="who">Luokitusstandardit</div>
+        <div class="what"><h4>IEC 60825 &amp; ANSI Z136</h4><p>Kansainvälinen IEC 60825 -standardi jakaa laserit turvallisuusluokkiin 1–4 tehon ja aallonpituuden mukaan; Yhdysvalloissa vastaavaa roolia hoitaa ANSI Z136 -sarja. Luokitus määrää suoraan vaadittavat suojatoimet.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Henkilösuojaimet ja lukitukset</div>
+        <div class="what"><h4>Suojalasit ja interlock-kytkennät</h4><p>Aallonpituuskohtaiset suojalasit, automaattiset ovilukitukset (interlock) jotka katkaisevat säteen kotelon avautuessa, ja kohdepoistoimurit hitsaus- ja leikkaussavuille ovat vakiovarustusta teollisissa laserjärjestelmissä.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Koulutus ja vastuuroolit</div>
+        <div class="what"><h4>Laser Safety Officer -käytäntö</h4><p>Monissa organisaatioissa nimetään erillinen laserturvallisuudesta vastaava henkilö, ja työturvallisuuskoulutus kattaa säteilyluokat, suojaetäisyydet ja hätätoimenpiteet — sama logiikka kuin muussakin konetyön turvallisuusjohtamisessa.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Vientivalvonta</div>
+        <div class="what"><h4>Wassenaarin järjestely ja kansalliset rajoitukset</h4><p>Korkean suorituskyvyn laserteknologia — erityisesti EUV-litografia ja suurteholaserit — kuuluu kansainvälisen vientivalvonnan piiriin; Alankomaiden ja Yhdysvaltojen viranomaiset ovat rajoittaneet kehittyneimpien järjestelmien vientiä.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Kansainvälinen sopimusoikeus</div>
+        <div class="what"><h4>YK:n asekonvention pöytäkirja IV</h4><p>Tavanomaisia aseita koskevan YK-yleissopimuksen pöytäkirja kieltää tarkoituksella pysyvää sokeutta aiheuttavat laseraseet — harvoja esimerkkejä teknologiasta, joka on ennakoivasti kielletty ennen laajaa käyttöönottoa.</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="who">Tekniset varmistukset</div>
+        <div class="what"><h4>Kuiturajapinnat ja automaattikatkaisut</h4><p>Suljetut kuiturajapinnat estävät säteen karkaamisen laitteen ulkopuolelle; anturit katkaisevat tehon automaattisesti, jos säde poikkeaa odotetulta radalta.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TULEVAISUUS ============ -->
+<section id="tulevaisuus">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-num">11 — SEURAAVA RAJAPINTA</div>
+      <h2>Mitä tapahtuu, kun kiinteä optiikka loppuu kesken</h2>
+      <p class="sec-sub">Eksawattiluokan tehoissa lasit ja peilit sulavat. Ratkaisu ei ole enää parempi materiaali, vaan materiaalin korvaaminen kokonaan.</p>
+    </div>
+    <div class="grid g4 reveal">
+      <div class="card">
+        <h3>Koherentti säteenyhdistäminen</h3>
+        <p>Kymmeniä tai satoja kuituvahvistinkanavia lukitaan vaiheeltaan yhteen — yksittäisen kuidun tehoraja ohitetaan yhdistämällä, ei vahvistamalla.</p>
+      </div>
+      <div class="card">
+        <h3>Plasmaoptiikka</h3>
+        <p>Plasma ei voi sulaa, koska se on jo täysin ionisoitunut. Heräteaaltokiihdytys (LWFA) kutistaa kilometrien hiukkaskiihdyttimet pöytäkokoon.</p>
+      </div>
+      <div class="card">
+        <h3>Laserherätteinen fuusio</h3>
+        <p>NIF-tyyppiset laitokset tavoittelevat toistuvaa nettoenergiavoittoa — pitkän aikavälin lupaus puhtaasta, lähes rajattomasta energiasta.</p>
+      </div>
+      <div class="card">
+        <h3>Langaton energiansiirto &amp; kvanttifotoniikka</h3>
+        <p>Lasertehonsiirto lataa satelliitteja ja kuutukikohtia; piipohjaiset fotoniset mikrosirut vievät tuhansia laserdiodeja yhdelle sirulle kvanttilaskentaa ja optisia atomikelloja varten.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand">LASER — OPETUSMATERIAALI · koottu fysiikan, markkinatiedon ja turvallisuusstandardien pohjalta</div>
+    <div class="fnote">Historialliset ja fysikaaliset kuvaukset perustuvat laserfysiikan yleistunnettuihin faktoihin. Markkina- ja liikevaihtoluvut perustuvat vuosien 2025–2026 julkisiin raportteihin (mm. Marketsandmarkets, Fortune Business Insights, ASML:n, Coherent Corp:n ja IPG Photonicsin taloustiedotteet) ja ovat luonteeltaan hetkellisiä arvioita, jotka muuttuvat ajan myötä.</div>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Chart defaults
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.color = '#9099AC';
+Chart.defaults.font.size = 11;
+
+const gridColor = 'rgba(255,255,255,0.06)';
+
+// Market growth chart
+new Chart(document.getElementById('marketChart'), {
+  type: 'line',
+  data: {
+    labels: ['2025','2026','2027','2028','2029','2030','2031','2032'],
+    datasets: [
+      {
+        label: 'Teollisuuslaserit (mrd. $)',
+        data: [23.9, 26.95, 31.4, 36.6, 42.6, 49.7, 57.9, 67.4],
+        borderColor: '#27DFC7', backgroundColor: 'rgba(39,223,199,0.08)',
+        tension:0.35, fill:true, pointRadius:2, borderWidth:2.5
+      },
+      {
+        label: 'Laseroptiikka (mrd. $)',
+        data: [10.97, 12.28, 13.74, 15.38, 17.22, 19.23, null, null],
+        borderColor: '#8B6CFF', backgroundColor: 'rgba(139,108,255,0.06)',
+        tension:0.35, fill:true, pointRadius:2, borderWidth:2.5
+      },
+      {
+        label: 'Korkean energian laserit / puolustus (mrd. $)',
+        data: [19.98, 23.47, 27.28, 31.72, 36.88, 42.92, null, null],
+        borderColor: '#FF2E4D', backgroundColor: 'rgba(255,46,77,0.07)',
+        tension:0.35, fill:true, pointRadius:2, borderWidth:2.5
+      }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{ legend:{ position:'top', align:'start', labels:{boxWidth:10,boxHeight:10,padding:16, font:{size:11}} } },
+    scales:{
+      x:{ grid:{color:gridColor}, border:{color:gridColor} },
+      y:{ grid:{color:gridColor}, border:{color:gridColor}, title:{display:true,text:'mrd. USD', color:'#5C6478'} }
+    }
+  }
+});
+
+// Player revenue chart
+new Chart(document.getElementById('playerChart'), {
+  type:'bar',
+  data:{
+    labels:['ASML\n(litografia/EUV)','Coherent Corp.','TRUMPF\n(tilausvaranto)','IPG Photonics'],
+    datasets:[{
+      label:'Liikevaihto 2025 (mrd. $, arvio €→$)',
+      data:[38.9, 5.81, 5.08, 1.00],
+      backgroundColor:['#FF2E4D','#27DFC7','#8B6CFF','#FFB84D'],
+      borderRadius:6,
+      barThickness:54
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ grid:{display:false}, border:{color:gridColor} },
+      y:{ grid:{color:gridColor}, border:{color:gridColor}, title:{display:true,text:'mrd. USD', color:'#5C6478'} }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
