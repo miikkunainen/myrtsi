@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laser — kattava opetuspaketti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0C10; --bg-raise:#12151C; --bg-raise-2:#171B24;
+  --line:rgba(255,255,255,0.08); --line-soft:rgba(255,255,255,0.05);
+  --text:#E9ECF3; --text-dim:#9099AC; --text-faint:#5C6478;
+  --ruby:#FF2E4D; --teal:#27DFC7; --violet:#8B6CFF; --amber:#FFB84D; --green:#3fd97a;
+  --serif:'Fraunces', Georgia, serif; --sans:'Inter', -apple-system, sans-serif; --mono:'JetBrains Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased;}
+::selection{background:var(--ruby);color:#fff;}
+
+.app-layout{display:grid;grid-template-columns:1fr 400px;min-height:100vh;}
+@media(max-width:1100px){.app-layout{grid-template-columns:1fr;}}
+.main-content{padding:0 40px 100px;max-width:900px;margin:0 auto;}
+@media(max-width:640px){.main-content{padding:0 20px 80px;}}
+
+nav.topnav{position:sticky;top:0;z-index:95;background:rgba(10,12,16,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);margin:0 -40px;padding:12px 40px;display:flex;flex-direction:column;gap:10px;}
+@media(max-width:640px){nav.topnav{margin:0 -20px;padding:10px 20px;}}
+.nav-row1{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.brand{font-family:var(--mono);font-size:12px;letter-spacing:0.07em;color:var(--text-dim);display:flex;align-items:center;gap:7px;}
+.brand .dot{width:6px;height:6px;border-radius:50%;background:var(--ruby);}
+.brand-sub{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
+
+.levelbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.levelbar-label{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);white-space:nowrap;}
+.levelbtns{display:flex;gap:4px;}
+.lvlbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg-raise);color:var(--text-dim);font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer;}
+.lvlbtn.active{border-color:var(--teal);color:var(--bg);background:var(--teal);}
+.lvlbtn.on{border-color:rgba(39,223,199,0.4);color:var(--teal);}
+.level-desc{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);flex:1;min-width:180px;}
+
+.hero{padding:26px 0 8px;}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--teal);margin-bottom:12px;}
+h1.hero-title{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.2vw,2.5rem);line-height:1.14;letter-spacing:-0.01em;}
+.hero-lede{margin-top:14px;font-size:0.98rem;color:var(--text-dim);max-width:640px;}
+.hero-note{margin-top:16px;font-size:12px;color:var(--text-faint);border-left:2px solid var(--line);padding-left:11px;max-width:580px;}
+
+section{padding:40px 0;border-top:1px solid var(--line-soft);scroll-margin-top:120px;}
+.sec-head{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.sec-num{font-family:var(--mono);font-size:10.5px;color:var(--ruby);letter-spacing:0.07em;margin-bottom:5px;}
+h2{font-family:var(--serif);font-weight:600;font-size:1.48rem;letter-spacing:-0.005em;}
+.sec-sub{color:var(--text-dim);margin-top:7px;font-size:0.9rem;max-width:520px;}
+
+.link-badge{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background:var(--bg-raise);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.15s;font-family:var(--mono);}
+.link-badge:hover{border-color:var(--teal);background:rgba(39,223,199,0.08);}
+.link-badge .lb-num{font-size:13px;font-weight:700;color:var(--teal);line-height:1;}
+.link-badge .lb-txt{font-size:6.5px;color:var(--text-faint);letter-spacing:0.03em;margin-top:1px;}
+.link-badge.done{border-color:var(--green);}
+.link-badge.done .lb-num{color:var(--green);}
+
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:700px){.g3,.g2{grid-template-columns:1fr;}}
+.card{background:var(--bg-raise);padding:17px 18px;}
+.card h3{font-family:var(--serif);font-size:0.98rem;font-weight:600;margin-bottom:5px;}
+.card p{font-size:12.5px;color:var(--text-dim);}
+.card .wl-badge{display:inline-block;font-family:var(--mono);font-size:9.5px;background:var(--teal);color:#05241f;padding:2px 7px;border-radius:11px;font-weight:700;margin-bottom:8px;}
+
+.timeline{position:relative;padding-left:22px;}
+.timeline::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:linear-gradient(var(--ruby),var(--teal));}
+.tl-item{position:relative;padding-bottom:18px;}
+.tl-item::before{content:'';position:absolute;left:-22px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--bg);border:2px solid var(--ruby);}
+.tl-year{font-family:var(--mono);font-weight:700;color:var(--ruby);font-size:11.5px;}
+.tl-title{font-family:var(--serif);font-size:0.98rem;font-weight:600;margin-top:2px;}
+.tl-desc{color:var(--text-dim);font-size:12px;margin-top:3px;}
+
+/* Depth layers */
+.layers{margin-top:16px;display:flex;flex-direction:column;gap:10px;}
+.layer{border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--text-dim);border:1px solid var(--line-soft);background:var(--bg-raise);}
+.layer .lyr-tag{font-family:var(--mono);font-size:9px;letter-spacing:0.07em;display:inline-block;margin-bottom:5px;padding:1px 7px;border-radius:9px;}
+.layer.l2 .lyr-tag{color:var(--teal);background:rgba(39,223,199,0.1);}
+.layer.l3 .lyr-tag{color:var(--amber);background:rgba(255,184,77,0.1);}
+.layer.l4{border-color:rgba(139,108,255,0.25);}
+.layer.l4 .lyr-tag{color:var(--violet);background:rgba(139,108,255,0.1);}
+.layer.l5{border:1px dashed rgba(255,46,77,0.4);background:rgba(255,46,77,0.04);}
+.layer.l5 .lyr-tag{color:var(--ruby);background:rgba(255,46,77,0.12);}
+.layer b{color:var(--text);}
+.layer-empty{margin-top:14px;font-size:12px;color:var(--text-faint);font-family:var(--mono);}
+
+/* Sidebar */
+.sidebar{background:var(--bg-raise);border-left:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+@media(max-width:1100px){.sidebar{position:relative;height:auto;border-left:none;border-top:1px solid var(--line);}}
+.sb-header{padding:15px 17px;border-bottom:1px solid var(--line);background:var(--bg);}
+.sb-title{font-family:var(--serif);font-size:1.02rem;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+.grade-badge{font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:14px;background:rgba(39,223,199,0.13);color:var(--teal);border:1px solid var(--teal);}
+.sb-meter{margin-top:9px;padding:8px 10px;border-radius:8px;background:var(--bg-raise-2);border:1px solid var(--line-soft);font-size:11px;}
+.sb-meter-header{display:flex;justify-content:space-between;color:var(--text-faint);font-family:var(--mono);margin-bottom:5px;}
+.meter-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--amber),var(--teal));transition:width .4s;}
+.grade-scale{display:flex;justify-content:space-between;margin-top:5px;font-family:var(--mono);font-size:8.5px;color:var(--text-faint);}
+.recommendation-box{margin-top:8px;font-size:10.5px;color:var(--amber);background:rgba(255,184,77,0.06);padding:7px 9px;border-radius:6px;border-left:2px solid var(--amber);display:none;}
+.sb-content{flex:1;overflow-y:auto;padding:17px;}
+.task-nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:9px;margin-bottom:11px;scrollbar-width:none;}
+.task-nav::-webkit-scrollbar{display:none;}
+.tnav-dot{width:23px;height:23px;border-radius:50%;background:var(--bg-raise-2);border:1px solid var(--line);color:var(--text-faint);font-family:var(--mono);font-size:9.5px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;}
+.tnav-dot.active{border-color:var(--ruby);color:var(--ruby);background:rgba(255,46,77,0.1);}
+.tnav-dot.correct{border-color:var(--green);color:var(--green);background:rgba(63,217,122,0.1);}
+.tnav-dot.wrong{border-color:var(--ruby);color:var(--ruby);background:rgba(255,46,77,0.1);}
+.tnav-dot.bonus{border-style:dashed;}
+.stage-card{background:var(--bg-raise-2);border:1px solid var(--line);border-radius:12px;padding:14px;}
+.stage-card.bonus{border-color:rgba(255,46,77,0.35);}
+.stage-card .s-act{font-family:var(--mono);font-size:9.5px;color:var(--ruby);letter-spacing:0.05em;}
+.stage-card .s-title{font-family:var(--serif);font-size:1rem;font-weight:600;margin-top:2px;}
+.stage-card .s-desc{font-size:12px;color:var(--text-dim);margin-top:6px;}
+.secret-box{margin-top:11px;border:1px dashed rgba(139,108,255,0.4);border-radius:8px;overflow:hidden;}
+.secret-btn{width:100%;padding:8px 10px;text-align:left;background:rgba(139,108,255,0.06);border:none;color:var(--violet);font-family:var(--mono);font-size:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.secret-text{padding:8px 10px;font-size:11px;color:var(--text-dim);background:rgba(139,108,255,0.02);display:none;border-top:1px dashed rgba(139,108,255,0.2);}
+.secret-text.open{display:block;}
+.q-box{margin-top:13px;border-top:1px solid var(--line-soft);padding-top:11px;}
+.q-title{font-size:12px;font-weight:600;margin-bottom:9px;}
+.q-opts{display:flex;flex-direction:column;gap:6px;}
+.q-opt{text-align:left;background:var(--bg-raise);border:1px solid var(--line);padding:8px 10px;border-radius:8px;font-size:11.3px;color:var(--text-dim);cursor:pointer;display:flex;gap:7px;line-height:1.32;}
+.q-opt:hover{border-color:var(--teal);color:var(--text);}
+.q-opt.correct{border-color:var(--green);background:rgba(63,217,122,0.1);color:var(--text);}
+.q-opt.wrong{border-color:var(--ruby);background:rgba(255,46,77,0.1);color:var(--text);}
+.q-opt.disabled{pointer-events:none;opacity:0.6;}
+.q-feed{margin-top:10px;padding:8px 10px;border-radius:8px;font-size:11px;display:none;}
+.q-feed.show{display:block;}
+.q-feed.ok{background:rgba(63,217,122,0.08);border:1px solid rgba(63,217,122,0.3);color:#baf5cf;}
+.q-feed.no{background:rgba(255,46,77,0.08);border:1px solid rgba(255,46,77,0.3);color:#ffc2cb;}
+.sb-footer{padding:11px 17px;border-top:1px solid var(--line);background:var(--bg);display:flex;justify-content:space-between;gap:8px;}
+.nav-btn{padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-family:var(--mono);font-size:10.5px;cursor:pointer;}
+.nav-btn.primary{background:var(--teal);color:#021814;border-color:var(--teal);font-weight:600;}
+.bonus-lock{margin-top:13px;padding:12px 14px;background:rgba(255,46,77,0.05);border:1px dashed rgba(255,46,77,0.35);border-radius:10px;font-size:11px;color:var(--text-dim);}
+.bonus-lock b{color:var(--ruby);}
+.exam-cta{margin:26px 0 0;padding:15px 17px;background:var(--bg-raise);border:1px solid rgba(255,184,77,0.3);border-radius:12px;font-size:12px;color:var(--text-dim);}
+.exam-cta b{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <main class="main-content">
+
+    <nav class="topnav">
+      <div class="nav-row1">
+        <div class="brand"><span class="dot"></span>Laser</div>
+        <div class="brand-sub">kattava opetuspaketti · tasot 1–5</div>
+      </div>
+      <div class="levelbar">
+        <span class="levelbar-label">Syvyystaso:</span>
+        <div class="levelbtns" id="levelBtns"></div>
+        <span class="level-desc" id="levelDesc"></span>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="eyebrow">Opetusmateriaali</div>
+      <h1 class="hero-title">Laserteknologia: periaatteista syvälle alan sisälle</h1>
+      <p class="hero-lede">Materiaali kattaa laserin fysiikan, kehityshistorian, tekniikat, käyttökohteet, taloudellisen merkityksen sekä turvallisuuskysymykset — perusteista alan vähemmän tunnettuihin yksityiskohtiin. Syvyystaso yllä säätää, kuinka paljon lisätietoa jokaisessa osiossa näkyy: tasolla 1 näet vain ydinasiat, tasolla 5 myös harvoin kerrotut taustatarinat.</p>
+      <div class="hero-note">Arvosana 5/5 tehtäväpaneelissa vaatii sekä kaikkien 11 peruskysymyksen että neljän syventävän lisäkysymyksen oikein vastaamisen. Lisäkysymykset avautuvat, kun nostat syvyystason 4:ään tai 5:een — ne perustuvat tällä sivulla oleviin syvimpiin kohtiin.</div>
+    </header>
+
+    <!-- 01 FYSIIKKA -->
+    <section id="fysiikka">
+      <div class="sec-head">
+        <div><div class="sec-num">01 — Periaate</div><h2>Kolme edellytystä koherentille valolle</h2>
+        <p class="sec-sub">Jokainen laser nojaa samaan kolmeen fysikaaliseen periaatteeseen riippumatta siitä, onko kyse viivakoodinlukijasta vai fuusiolaitoksesta.</p></div>
+        <div class="link-badge" onclick="jumpToTask(0)"><span class="lb-num">1</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g3">
+        <div class="card"><div class="wl-badge">01</div><h3>Stimuloitu emissio</h3><p>Oikean energian omaava fotoni saa virittyneen atomin luopumaan energiastaan täsmälleen samanlaisena fotonina — sama suunta, vaihe ja aallonpituus.</p></div>
+        <div class="card"><div class="wl-badge">02</div><h3>Populaatioinversio</h3><p>Ylemmällä energiatasolla täytyy olla enemmän atomeja kuin alemmalla, jotta valo vahvistuu vaimenemisen sijaan.</p></div>
+        <div class="card"><div class="wl-badge">03</div><h3>Optinen resonaattori</h3><p>Kaksi peiliä pakottaa fotonit kulkemaan edestakaisin, kunnes vahvistunut valo pääsee ulos kapeana säteenä.</p></div>
+      </div>
+      <div class="layers" id="layers-fysiikka"></div>
+    </section>
+
+    <!-- 02 HISTORIA -->
+    <section id="historia">
+      <div class="sec-head">
+        <div><div class="sec-num">02 — Kehityshistoria</div><h2>Kilpajuoksu ensimmäisestä toimivasta laitteesta</h2>
+        <p class="sec-sub">Useampi ryhmä työskenteli samaan aikaan saman ongelman parissa 1950-luvun lopulla.</p></div>
+        <div class="link-badge" onclick="jumpToTask(1)"><span class="lb-num">2</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-year">1954</div><div class="tl-title">Ensimmäinen maseri</div><div class="tl-desc">Charles Townes, James Gordon ja Herbert Zeiger osoittavat stimuloidun emission toimivan mikroaaltotaajuudella.</div></div>
+        <div class="tl-item"><div class="tl-year">1957–1958</div><div class="tl-title">Nimi ja teoreettinen malli</div><div class="tl-desc">Gordon Gould keksii termin LASER. Townes ja Schawlow julkaisevat teoreettisen mallin avoimesta resonaattorista.</div></div>
+        <div class="tl-item"><div class="tl-year">1960</div><div class="tl-title">Ensimmäinen toimiva laser</div><div class="tl-desc">Theodore Maiman saa rubiinikiteen tuottamaan koherenttia punaista valoa 16.5.1960 — materiaalilla, jota moni piti huonona valintana.</div></div>
+        <div class="tl-item"><div class="tl-year">1962</div><div class="tl-title">Puolijohdelaserdiodi</div><div class="tl-desc">Robert Hall ja Nick Holonyak rakentavat ensimmäiset galliumarsenidilaserit.</div></div>
+      </div>
+      <div class="layers" id="layers-historia"></div>
+    </section>
+
+    <!-- 03 TEKNOLOGIAT -->
+    <section id="teknologiat">
+      <div class="sec-head">
+        <div><div class="sec-num">03 — Teknologiat</div><h2>Aktiivinen väliaine ratkaisee käyttökohteen</h2>
+        <p class="sec-sub">Yhtä ainoaa parasta laseria ei ole olemassa — jokainen tyyppi on kompromissi aallonpituuden, tehon ja hyötysuhteen välillä.</p></div>
+        <div class="link-badge" onclick="jumpToTask(2)"><span class="lb-num">3</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g3">
+        <div class="card"><div class="wl-badge">1030–1080 nm</div><h3>Kuitulaser</h3><p>Ytterbiumseostettu kuitu, hyötysuhde 40–50 %. Nykyisen teollisuuden pääasiallinen työkalu.</p></div>
+        <div class="card"><div class="wl-badge">193/248 nm</div><h3>Eksimeerilaser</h3><p>Jalokaasu-halogeeniyhdisteet syvässä UV:ssa. Litografia ja silmäkirurgia.</p></div>
+        <div class="card"><div class="wl-badge">375–1550 nm</div><h3>Puolijohdediodi</h3><p>Halvin ja tehokkain lähde, hyötysuhde 50–70 %.</p></div>
+      </div>
+      <div class="layers" id="layers-teknologiat"></div>
+    </section>
+
+    <!-- 04 SOVELLUKSET -->
+    <section id="sovellukset">
+      <div class="sec-head">
+        <div><div class="sec-num">04 — Sovellukset</div><h2>Kuusi toimialaa, joita laser pyörittää</h2>
+        <p class="sec-sub">Laser ei enää näy arjessa suoraan — se on infrastruktuurin taustalla lähes kaikkialla.</p></div>
+        <div class="link-badge" onclick="jumpToTask(3)"><span class="lb-num">4</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>Mikroelektroniikka</h3><p>EUV-litografia tuottaa CO₂-laserilla höyrystetystä tinaplasmasta 13,5 nm valon kehittyneimpien mikropiirien piirtämiseen.</p></div>
+        <div class="card"><h3>Optinen tietoliikenne</h3><p>Puolijohdelaserdiodit ja erbiumvahvistimet siirtävät internetin dataliikenteen.</p></div>
+        <div class="card"><h3>Teollisuus</h3><p>Kuitulaserit ovat korvanneet mekaanisen leikkuun ja hitsauksen.</p></div>
+        <div class="card"><h3>Lääketiede</h3><p>LASIK-kirurgia, fotodynaaminen syöpähoito, optiset pinsetit.</p></div>
+        <div class="card"><h3>Tiede</h3><p>LIGO ja NIF-fuusiolaitos.</p></div>
+        <div class="card"><h3>Puolustus</h3><p>Korkean energian kuitulaserit lennokkien ja ohjusten torjuntaan.</p></div>
+      </div>
+      <div class="layers" id="layers-sovellukset"></div>
+    </section>
+
+    <!-- 05 TALOUS -->
+    <section id="talous">
+      <div class="sec-head">
+        <div><div class="sec-num">05 — Taloudellinen merkitys</div><h2>Arvo on siirtynyt kolmesti</h2>
+        <p class="sec-sub">Ensin teollinen työstö, sitten tietoliikenne, nyt puolijohdevalmistus.</p></div>
+        <div class="link-badge" onclick="jumpToTask(4)"><span class="lb-num">5</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>1970–1995: teollisuus ja tiede</h3><p>CO₂- ja Nd:YAG-laserit korvaavat mekaanisen leikkuun tehtailla.</p></div>
+        <div class="card"><h3>1995–2015: tietoliikenne</h3><p>Laserdiodit ja optiset vahvistimet rakentavat internetin selkärangan.</p></div>
+        <div class="card"><h3>2015–2026: puolijohdevalmistus</h3><p>EUV-litografia nousee arvoltaan suurimmaksi laserperusteiseksi teknologiaksi.</p></div>
+        <div class="card"><h3>2026 eteenpäin: puolustus ja energia</h3><p>Korkean energian laserien markkina kasvaa nopeimmin, noin 16 % vuodessa.</p></div>
+      </div>
+      <div class="layers" id="layers-talous"></div>
+    </section>
+
+    <!-- 06 TOIMIJAT -->
+    <section id="toimijat">
+      <div class="sec-head">
+        <div><div class="sec-num">06 — Suurimmat toimijat</div><h2>Kuka tekee liikevaihtoa lasereilla</h2>
+        <p class="sec-sub">Ala on konsolidoitunut muutaman suuren toimijan käsiin.</p></div>
+        <div class="link-badge" onclick="jumpToTask(5)"><span class="lb-num">6</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g3">
+        <div class="card"><h3>ASML (Alankomaat)</h3><p>Ainoa EUV-litografiakoneiden valmistaja. Liikevaihto 32,7 mrd. € vuonna 2025.</p></div>
+        <div class="card"><h3>Coherent Corp. (USA)</h3><p>5,81 mrd. dollarin liikevaihto tilikaudella 2025, kasvu 23 %.</p></div>
+        <div class="card"><h3>IPG Photonics ja TRUMPF</h3><p>Kuitulaserin pioneeri ja saksalainen perheyhtiö, jonka tilauskanta heilahtelee voimakkaasti.</p></div>
+      </div>
+      <div class="layers" id="layers-toimijat"></div>
+    </section>
+
+    <!-- 07 RAHOITUS -->
+    <section id="rahoitus">
+      <div class="sec-head">
+        <div><div class="sec-num">07 — Tutkimuksen rahoitus</div><h2>Kuka maksoi ennen kuin kukaan tiesi hyötyvänsä</h2>
+        <p class="sec-sub">Vuosikymmenten julkinen perustutkimusrahoitus muuttuu myöhemmin merkittäväksi teollisuudeksi.</p></div>
+        <div class="link-badge" onclick="jumpToTask(6)"><span class="lb-num">7</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>Valtiolliset laboratoriot</h3><p>Lawrence Livermore rahoittaa 192-säteistä fuusiolaseria (NIF).</p></div>
+        <div class="card"><h3>Yliopistot ja yritykset</h3><p>EU:n Horizon Europe -ohjelmat ja yritysten omat T&K-budjetit.</p></div>
+      </div>
+      <div class="layers" id="layers-rahoitus"></div>
+    </section>
+
+    <!-- 08 YHTEISKUNTA -->
+    <section id="yhteiskunta">
+      <div class="sec-head">
+        <div><div class="sec-num">08 — Yhteiskunnallinen vaikutus</div><h2>Näkymätön mutta kaikkialla läsnä</h2>
+        <p class="sec-sub">Laser ei tunkeutunut arkeen näkyvästi, vaan sulautui infrastruktuurin osaksi.</p></div>
+        <div class="link-badge" onclick="jumpToTask(7)"><span class="lb-num">8</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>Internet</h3><p>Jokainen valokuituyhteys nojaa laserdiodeihin ja optisiin vahvistimiin.</p></div>
+        <div class="card"><h3>Laskentateho</h3><p>Kehittyneet suorittimet syntyvät EUV- ja DUV-litografian kautta.</p></div>
+      </div>
+      <div class="layers" id="layers-yhteiskunta"></div>
+    </section>
+
+    <!-- 09 HAITAT -->
+    <section id="haitat">
+      <div class="sec-head">
+        <div><div class="sec-num">09 — Riskit</div><h2>Sama ominaisuus, väärä osoite</h2>
+        <p class="sec-sub">Tiivis, suunnattu energia on hyödyllistä oikeassa paikassa ja vaarallista väärässä.</p></div>
+        <div class="link-badge" onclick="jumpToTask(8)"><span class="lb-num">9</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>Terveys</h3><p>Luokan 3B ja 4 laserit voivat vahingoittaa verkkokalvoa pysyvästi murto-osassa sekuntia.</p></div>
+        <div class="card"><h3>Väärinkäyttö</h3><p>Halvat laserosoittimet lentokoneiden ohjaamoihin aiheuttavat vuosittain tuhansia vaaratilanteita.</p></div>
+      </div>
+      <div class="layers" id="layers-haitat"></div>
+    </section>
+
+    <!-- 10 HALLINTA -->
+    <section id="hallinta">
+      <div class="sec-head">
+        <div><div class="sec-num">10 — Riskienhallinta</div><h2>Miten haittoja hallitaan käytännössä</h2>
+        <p class="sec-sub">Laserturvallisuus on yksi harvoista teknologia-alueista, jolla sääntely on pysynyt kehityksen tahdissa.</p></div>
+        <div class="link-badge" onclick="jumpToTask(9)"><span class="lb-num">10</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>IEC 60825</h3><p>Turvallisuusluokitus 1–4 määrittää tarvittavat suojaimet.</p></div>
+        <div class="card"><h3>YK-pöytäkirja IV</h3><p>Kieltää ennakoivasti tarkoituksella pysyvää sokeutta aiheuttavat laseraseet.</p></div>
+      </div>
+      <div class="layers" id="layers-hallinta"></div>
+    </section>
+
+    <!-- 11 TULEVAISUUS -->
+    <section id="tulevaisuus">
+      <div class="sec-head">
+        <div><div class="sec-num">11 — Tulevaisuus</div><h2>Kun kiinteä optiikka ei enää riitä</h2>
+        <p class="sec-sub">Eksawattiluokan tehoissa lasit ja peilit sulavat.</p></div>
+        <div class="link-badge" onclick="jumpToTask(10)"><span class="lb-num">11</span><span class="lb-txt">TEHTÄVÄ</span></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h3>Koherentti säteenyhdistäminen</h3><p>Kymmeniä kuituvahvistinkanavia lukitaan vaiheeltaan yhteen.</p></div>
+        <div class="card"><h3>Plasmaoptiikka</h3><p>Plasma on jo ionisoitunut, joten sillä ei ole samaa vauriokynnystä kuin kiinteällä materiaalilla.</p></div>
+      </div>
+      <div class="layers" id="layers-tulevaisuus"></div>
+    </section>
+
+    <div class="exam-cta"><b>Huomio:</b> tämä näkymä on tarkoitettu opiskeluun ilman aikarajaa. Ajastettu koeversio (ei opetustekstiä näkyvissä) on oma erillinen tiedostonsa.</div>
+
+  </main>
+
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-title"><span>Osaamistaso</span><div class="grade-badge" id="gradeBadge">1.0 / 5</div></div>
+      <div class="sb-meter">
+        <div class="sb-meter-header"><span>Pisteet</span><span id="scoreDisplay">0 / 1500 p</span></div>
+        <div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div>
+        <div class="grade-scale"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+      </div>
+      <div class="recommendation-box" id="recBox"></div>
+    </div>
+    <div class="sb-content">
+      <div class="task-nav" id="taskNav"></div>
+      <div class="stage-card" id="taskStageCard"></div>
+    </div>
+    <div class="sb-footer">
+      <button class="nav-btn" onclick="navTask(-1)">← Edellinen</button>
+      <button class="nav-btn primary" onclick="navTask(1)">Seuraava →</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ============ SYVYYSTASOT: sisältökerrokset per osio ============ */
+const DEPTH = {
+fysiikka:[
+ {lvl:2,text:"Einstein johti stimuloidun emission vuoden 1917 artikkelissaan <i>Zur Quantentheorie der Strahlung</i>, johtamalla uudelleen Planckin säteilylain Bohrin atomimallin stationääristen tilojen avulla. Tästä syntyivät niin sanotut Einsteinin kertoimet A ja B, jotka kuvaavat spontaanin emission, absorption ja stimuloidun emission todennäköisyyksiä."},
+ {lvl:3,text:"Kaksitasojärjestelmässä populaatioinversiota ei voi koskaan saavuttaa: kun ylätilan miehitys kasvaa, myös stimuloidun emission todennäköisyys kasvaa samassa suhteessa, jolloin tasapaino saavutetaan ennen inversiota. Tästä syystä kaikki toimivat laserit käyttävät vähintään kolmea energiatasoa. Vuonna 1963 Roy Glauber osoitti, että laservalo koostuu koherenteista tiloista, joiden fotonien saapumistiheys noudattaa Poisson-jakaumaa — tilastollisesti täysin eri ilmiö kuin lämpösäteilyn satunnainen fotonijakauma. Työstä myönnettiin fysiikan Nobel-palkinto 2005."},
+ {lvl:4,text:"Resonaattorin kaistanleveyttä rajoittaa niin kutsuttu Schawlow–Townes-raja, ja itse lasersäteen vaihe on 90 astetta edellä sitä stimuloivaa fotonia. Q-kytketty laser rakentaa energian resonaattoriin ennen kuin häviö poistetaan yhtäkkiä, tuottaen yhden voimakkaan pulssin; moodilukittu laser sen sijaan tuottaa peräkkäisiä, keskenään vaihekoherentteja pulsseja, joiden kesto voi olla vain muutamia femtosekunteja."},
+ {lvl:5,text:"<b>Syvä tausta:</b> Stimuloidun emission olemassaolo todistettiin kokeellisesti jo 1928, kun Rudolf Ladenburg havaitsi niin kutsutun negatiivisen absorption. Vuonna 1939 Neuvostoliiton Valentin Fabrikant ennusti teoriassa, että ilmiöllä voisi vahvistaa lyhyitä aaltoja — yli kaksi vuosikymmentä ennen ensimmäistä laseria. Vuonna 1947 Willis Lamb ja R. C. Retherford havaitsivat stimuloidun emission suoraan vedyn spektristä laboratoriokokeessa. Kolme erillistä läpimurtoa, jotka olisivat voineet johtaa laseriin vuosikymmeniä aikaisemmin — kukaan ei vain yhdistänyt niitä laitteeksi asti."}
+],
+historia:[
+ {lvl:2,text:"Japanilainen insinööri Jun-ichi Nishizawa jätti huhtikuussa 1957 patenttihakemuksen puolijohteisesta optisesta maserista — samana vuonna kuin Gouldin muistikirjamerkinnät ja ennen kuin Townes ja Schawlow aloittivat vakavan näkyvän valon tutkimuksensa Bell Labsilla. Tätä rinnakkaista japanilaista alkuperätarinaa mainitaan harvoin länsimaisissa historiikeissa."},
+ {lvl:3,text:"Vielä varhaisempi, lähes unohdettu etappi: Joseph Weber esitti kesäkuussa 1952 Ottawan konferenssissa paperin stimuloituun emissioon perustuvasta mikroaaltovahvistimesta — vuosi ennen kuin Townes rakensi ensimmäisen toimivan maserin. Townes pyysi itse Weberiltä kopion tästä paperista."},
+ {lvl:4,text:"Toukokuussa 1960 kilpaa kävi käytännössä neljä ryhmää samanaikaisesti: Townes Columbian yliopistossa, Schawlow Bell Labsilla, Gould TRG:llä — ja lopulta voittajaksi selvisi Maiman Hughesilla, ryhmä jolla oli näistä pienin budjetti ja jonka valitsemaa rubiinia moni piti etukäteen huonona valintana kolmitasorakenteensa vuoksi."},
+ {lvl:5,text:"<b>Syvä tausta — salattu projekti:</b> Gouldin työnantaja TRG sai 1958 lähes miljoonan dollarin luokan salaisen ARPA-sopimuksen (nykyisen DARPA:n edeltäjä) laserin rakentamiseen. Pentagon kuitenkin luokitteli koko projektin salaiseksi ja epäsi Gouldilta turvallisuusselvityksen hänen nuoruudenaikaisten kommunistisiteidensä vuoksi — hän ei saanut laillisesti työskennellä oman keksintönsä parissa. Kun Maiman lopulta esitteli laserin heinäkuussa 1960, toimittajat kysyivät suoraan, oliko kyseessä ase — Los Angeles Herald otsikoi kaksituumaisin punaisin kirjaimin: 'L.A. Man Discovers Science Fiction Death Ray.'"}
+],
+teknologiat:[
+ {lvl:2,text:"Perheeseen kuuluu myös orgaanista väriainetta käyttäviä väriainelasereita, jotka ovat laajakaistaisia ja viritettäviä; titaanisafiirilaser, joka on moodilukitun ultralyhyiden pulssien peruslähde; sekä vapaan elektronin laser, jonka aallonpituusaluetta voi säätää mikroaalloista aina pehmeään röntgensäteilyyn asti — laajin taajuusalue mistään lasertyypistä."},
+ {lvl:3,text:"Kemialliset laserit, kuten vety- ja deuteriumfluoridilaserit, tuottavat tehonsa suoraan kemiallisesta reaktiosta sähkön sijaan — tästä syystä ne ovat kiinnostaneet erityisesti puolustussektoria. Kvanttikaskadilaserissa yksi ainoa elektroni voi tuottaa sarjan fotoneja kulkiessaan peräkkäisten kvanttikaivojen läpi, mikä on rakenteellisesti ainutlaatuista lasertekniikassa."},
+ {lvl:4,text:"Gammasädelaseria on tavoiteltu akateemisesti 1970-luvulta lähtien atomiytimien isomeeristen tilojen välisillä siirtymillä — tutkimusta on tehty erityisesti entisessä Neuvostoliitossa ja Yhdysvalloissa, mutta toimivaa laitetta ei ole vieläkään saatu aikaan yli 50 vuoden yrityksen jälkeen. Vuonna 2007 esitettiin teoria positroniumin annihilaatioon perustuvasta gammalaserista, joka voisi periaatteessa korvata sadat NIF-tyyppiset laserit yhdellä laitteella fuusion sytyttämisessä."},
+ {lvl:5,text:"<b>Syvä tausta — elävä laser:</b> Tutkijat ovat geenimuunnelleet eläviä soluja tuottamaan vihreää fluoresoivaa proteiinia ja käyttäneet niitä laserin vahvistavana väliaineena — solu asetettiin kahden 20-mikrometrin peilin väliin ja pumpattiin sinisellä valolla, jolloin se säteili suunnattua vihreää laservaloa. Vastaavaa ilmiötä tapahtuu myös luonnossa ilman kenenkään rakentamaa laitetta: säteilyn kyllästämät kaasut Marsin ja Venuksen ilmakehässä sekä tähtijärjestelmä MWC 349 vahvistavat valoa täysin samalla periaatteella kuin astrofysikaalinen maseri."}
+],
+sovellukset:[
+ {lvl:2,text:"Ensimmäinen laajalti huomattu kuluttajasovellus oli vuonna 1974 käyttöön otettu kaupan viivakoodinlukija. Laserdisc-soitin (1978) oli ensimmäinen kuluttajatuote, jossa oli laser, mutta CD-soitin (1982) oli ensimmäinen todella yleistynyt laserlaite — laserprinterit seurasivat pian perässä."},
+ {lvl:3,text:"Muita vähemmän tunnettuja sovelluksia: laserpohjainen sormenjälkien havaitseminen rikostekniikassa, LIDAR-liikennevalvonta, ja optiset pinsetit, joilla voidaan liikutella yksittäisiä soluja, viruksia ja DNA-molekyylejä koskettamatta niitä — tekniikasta myönnettiin fysiikan Nobel-palkinto Arthur Ashkinille 2018."},
+ {lvl:4,text:"Vuonna 2004 diodilasereita ei-mukaan lukien myytiin noin 131 000 kappaletta 2,19 mrd. dollarin arvosta; samana vuonna diodilasereita myytiin noin 733 miljoonaa kappaletta 3,2 mrd. dollarin arvosta. Vuoteen 2023 mennessä pelkkien teollisuuslaserien globaali myynti oli kasvanut 21,85 mrd. dollariin — luvut havainnollistavat, kuinka diodilaserien valtava kappalemäärä ja tehokkaiden laserien kasvava arvo ovat kaksi eri kasvutarinaa."},
+ {lvl:5,text:"<b>Syvä tausta:</b> Kun ensimmäinen laser esiteltiin, sitä kutsuttiin ironisesti 'ratkaisuksi, jolla ei ollut ongelmaa' — laite rakennettiin ilman selvää sovelluskohdetta, ja silti se muokkasi kahdessa vuosikymmenessä tietoliikenteen, lääketieteen, valmistuksen ja sodankäynnin perusteellisesti. Harva teknologia on keksinyt markkinansa vasta jälkikäteen samassa mittakaavassa."}
+],
+talous:[
+ {lvl:2,text:"Sama kasvutarina näkyy myynnin volyymissa: vuoden 2004 noin 5,4 mrd. dollarin kokonaismyynnistä (diodi- ja ei-diodilaserit yhteensä) on kasvettu pelkän teollisuuslasersegmentin 21,85 mrd. dollariin vuoteen 2023 mennessä."},
+ {lvl:3,text:"Arvon siirtymä on ollut jyrkkä: 1980-luvulla suurin yksittäinen rahoittaja oli puolustusteollisuus ja tiedelaboratoriot, 1990–2010 tietoliikenneyhtiöt, ja 2010-luvulta lähtien puolijohdeteollisuus — jokainen kausi on nostanut aivan eri toimijat markkinan huipulle."},
+ {lvl:4,text:"Toimialan syklisyys on todellinen riski: kun TRUMPF ilmoitti tilauskannan pudonneen 10,4 % yhdellä tilikaudella, kyse ei ollut heikosta teknologiasta vaan siitä, kuinka herkästi koko ala heiluu tehtaiden investointisyklien mukana."},
+ {lvl:5,text:"<b>Syvä tausta:</b> EUV-litografian koko maailmanlaajuinen tarjonta kulkee yhden ainoan hollantilaisyhtiön läpi — jos tämä yksi tuotantolinja pysähtyisi, koko kehittyneimpien mikropiirien valmistus maailmassa pysähtyisi sen mukana. Samaan aikaan kiinalainen Han's Laser ja muut kotimaiset valmistajat kasvattavat osuuttaan voimakkaasti halvempien tuotteiden segmentissä, mikä on alkanut painaa länsimaisten valmistajien katteita."}
+],
+toimijat:[
+ {lvl:2,text:"ASML:n EUV-järjestelmien osuus yhtiön järjestelmäliikevaihdosta kasvoi 38 prosentista 48 prosenttiin vuodesta 2024 vuoteen 2025 — nopeampaa kasvua kuin missään muussa ASML:n tuotesegmentissä."},
+ {lvl:3,text:"Coherent Corp:n 23 prosentin liikevaihdon kasvu tilikaudella 2025 selittyy pääosin tekoälyn datakeskusten optisten liitäntätuotteiden kysynnän kasvulla — sama tekoälybuumi joka näkyy puolijohdeyhtiöiden tuloksissa, näkyy myös laseryhtiöiden kirjoissa toista kautta."},
+ {lvl:4,text:"Patenttien taloudellinen arvo on edelleen merkittävä: yksittäisen keksijän (Gordon Gould) 1980-luvun lisenssitulot olivat luokkaa 30 miljoonaa dollaria 17 vuoden aikana — nykyisin vastaava arvo syntyy lähes yksinomaan suuryritysten patenttisalkkujen kautta, ei enää yksittäisille keksijöille."},
+ {lvl:5,text:"<b>Syvä tausta:</b> IPG Photonics, joka on historiallisesti tunnettu teollisuuden kuitulasereista, on viime vuosina siirtynyt suoraan asemarkkinoille: yhtiö on toimittanut korkean energian CROSSBOW-laserjärjestelmiä muun muassa Lockheed Martinille. Siviiliteollisuuden laserjätti on siis samalla yksi kasvavista puolustusteollisuuden toimittajista."}
+],
+rahoitus:[
+ {lvl:2,text:"ARPA (nykyisen DARPA:n edeltäjä) rahoitti Gouldin TRG:n laserprojektia jo 1958 lähes miljoonalla dollarilla — yksi varhaisimmista esimerkeistä sotilaallisen tutkimusrahoituksen ja siviilikäyttöön päätyneen läpimurron suorasta yhteydestä."},
+ {lvl:3,text:"NIF-fuusiolaitos Lawrence Livermoressa on jatkuvasti käynnissä oleva, vuosikymmeniä kestänyt investointi, jonka päätavoite — nettoenergiavoitto — on ollut käsillä hyvin pitkään ennen kuin ensimmäisiä läpimurtoja saavutettiin."},
+ {lvl:4,text:"EU:n Horizon Europe -ohjelmat ja eurooppalainen fotoniikkateollisuuden yhteenliittymä Photonics21 suuntaavat rahoitusta koko arvoketjuun optiikasta valmiisiin laitteisiin, täydentäen yritysten omia satojen miljoonien T&K-budjetteja."},
+ {lvl:5,text:"<b>Syvä tausta — kylmän sodan ase joka ei koskaan toiminut:</b> 1980-luvun Yhdysvaltain avaruuspuolustusohjelma (SDI, 'tähtien sota') rahoitti Lawrence Livermoressa Edward Tellerin johdolla ydinräjähdyksellä pumpattavan röntgenlaserin kehitystä ohjuspuolustusaseeksi nimeltä Excalibur. Laite oli suunniteltu kertakäyttöiseksi — yksi ydinräjähdys, yksi laukaus. Ohjelmaan käytettiin miljardeja dollareita vuosikymmenten aikana, mutta toimivaa asetta ei koskaan saatu operatiiviseksi."}
+],
+yhteiskunta:[
+ {lvl:2,text:"Viivakoodinlukija, CD-soitin ja laserprintteri olivat monelle ensimmäinen konkreettinen kosketus laserteknologiaan — samat 1970–80-lukujen kuluttajatuotteet loivat mielikuvan, joka elää yhä, vaikka nykyinen laserteollisuus on aivan toisenlaisessa mittakaavassa."},
+ {lvl:3,text:"Optiset pinsetit ovat nykyään keskeinen työkalu solubiologiassa ja lääketutkimuksessa — tekniikka, jolla yksittäisiä molekyylejä voidaan liikuttaa koskettamatta niitä, on osa samaa tutkimusinfrastruktuuria joka on mahdollistanut esimerkiksi mRNA-rokoteteknologian kehitystyötä."},
+ {lvl:4,text:"Mittakaavaero on huomattava: diodilasereita myydään satoja miljoonia kappaleita vuosittain lähes huomaamattomana osana kulutuselektroniikkaa, kun taas suurteholaserien arvo keskittyy muutamaan tuhanteen teolliseen ja tieteelliseen laitteeseen — kaksi täysin erilaista taloudellista logiikkaa saman perusteknologian sisällä."},
+ {lvl:5,text:"<b>Syvä tausta:</b> Sama EUV-litografian yhden toimittajan riippuvuus, joka mainittiin taloutta käsittelevässä osiossa, tarkoittaa käytännössä sitä, että lähes jokainen älypuhelin, kannettava tietokone ja tekoälypalvelin maailmassa on riippuvainen yhdestä hollantilaisesta tuotantolinjasta — yhteiskunnan digitaalinen selkäranka nojaa poikkeuksellisen kapeaan pullonkaulaan."}
+],
+haitat:[
+ {lvl:2,text:"Laserien tehoalueet vaihtelevat valtavasti: 1–5 mW:n laserosoittimista aina kymmenien kilowattien teollisuuslasereihin ja megawattiluokan sotilaslasereihin — huipputeho voi olla useita kertaluokkia keskitehoa suurempi pulssitetuissa järjestelmissä."},
+ {lvl:3,text:"Jo ensimmäinen laser tunnistettiin vaaralliseksi: Theodore Maiman kuvasi sen tehoa yhdeksi 'Gilletteksi', koska se pystyi polttamaan reiän partateräpakkaukseen. Nykyään tiedetään, että jopa muutaman milliwatin tehoiset laserit voivat vahingoittaa silmää pysyvästi, jos säde osuu suoraan silmään."},
+ {lvl:4,text:"Sotilaskäytössä 'dazzlerit' — laitteet jotka aiheuttavat väliaikaisen mutta eivät pysyvän sokeuden — ovat edelleen laillisia ja käytössä useissa maissa, vaikka pysyvää sokeutta tarkoituksella aiheuttavat laserit on kielletty. Raja näiden kahden välillä on käytännössä tehokysymys, ei periaatteellinen."},
+ {lvl:5,text:"<b>Syvä tausta:</b> Historian kunnianhimoisin ja vaarallisin laseraseohjelma oli 1980-luvun Excalibur-projekti (ks. rahoitusosio) — ydinräjähdyksellä pumpattava, avaruuteen sijoitettava röntgenlaser, joka olisi tuhoutunut jokaisen laukauksen jälkeen. Ohjelma ei koskaan toiminut käytännössä, mutta se osoittaa, kuinka pitkälle laserteknologian sotilaallista potentiaalia on ollut valmis viemään."}
+],
+hallinta:[
+ {lvl:2,text:"Turvallisuusluokat tarkennettuna: luokka 1 on itsessään turvallinen (esim. CD-soittimet), luokka 2 on turvallinen normaalikäytössä silmän räpäytysrefleksin ansiosta (enintään 1 mW), luokka 3R (aiemmin IIIa) enintään 5 mW pienellä silmävauriovaaralla, luokka 3B (5–499 mW) voi vahingoittaa silmää välittömästi, ja luokka 4 (yli 500 mW) voi polttaa myös ihoa ja vahingoittaa silmää jopa hajavalon kautta."},
+ {lvl:3,text:"Termi 'silmäturvallinen' liitetään usein yli 1,4 mikrometrin infrapunalasereihin, koska sarveiskalvo absorboi tällä alueella valon ennen verkkokalvoa — mutta merkintä on harhaanjohtava: suuritehoinen tai Q-kytketty laser samalla aallonpituudella voi silti polttaa sarveiskalvon vakavasti."},
+ {lvl:4,text:"Laserturvallisuuden verkkokoulutukset ja sertifioinnit (kuten alan kaupalliset e-oppimisalustat) ovat vakiintunut osa teollisuuden ja terveydenhuollon laserturvallisuusvastaavien (Laser Safety Officer) koulutuspolkua monissa maissa."},
+ {lvl:5,text:"<b>Syvä tausta:</b> Sokeuttavien laseraseiden kielto (YK:n pöytäkirja IV) on yksi harvoista esimerkeistä, joissa kansainvälinen yhteisö kielsi asejärjestelmän ennakoivasti ennen sen laajaa käyttöönottoa — samalla kun väliaikaisesti sokeuttavat 'dazzlerit' jäivät tarkoituksella kiellon ulkopuolelle, mikä osoittaa kuinka kapealle kielilliselle rajalle kansainvälinen sopimus lopulta rakentui."}
+],
+tulevaisuus:[
+ {lvl:2,text:"Vapaan elektronin laser (FEL) käyttää relativistista elektronisuihkua sitoutuneiden atomitilojen sijaan — ainoa lasertyyppi, jonka aallonpituusaluetta voi säätää mikroaalloista pehmeään röntgensäteilyyn asti samalla laitteella."},
+ {lvl:3,text:"Gammasädelaseria on tavoiteltu akateemisesti yli 50 vuotta atomiydinten isomeeristen tilojen siirtymillä, ilman toimivaa laitetta toistaiseksi — yksi pitkäikäisimmistä ratkaisemattomista tavoitteista koko laserfysiikassa."},
+ {lvl:4,text:"Vuonna 2007 esitetty teoria positroniumin annihilaatioon perustuvasta gammalaserista voisi periaatteessa korvata sadat nykyiset NIF-tyyppiset fuusiolaserit yhdellä ainoalla, huomattavasti tehokkaammalla laitteella — toistaiseksi puhtaasti teoreettinen mahdollisuus."},
+ {lvl:5,text:"<b>Syvä tausta — luonto ehti ensin:</b> Kaikki koherentin valon vahvistuminen, jota ihmiskunta on vuosikymmeniä yrittänyt hallita laboratorioissa, tapahtuu jo spontaanisti avaruudessa: säteilyn kyllästämät kaasut Marsin ja Venuksen ilmakehässä sekä tähtijärjestelmä MWC 349 muodostavat luonnollisia lasereita ilman kenenkään rakentamaa resonaattoria. Fysiikka oli olemassa kauan ennen Einsteinin yhtälöitä — ihmiskunta vain oppi lopulta kopioimaan sen."}
+]
+};
+
+const LEVEL_LABELS = {
+ 1:"Ydinasiat — se, mitä kaikkien pitää tietää.",
+ 2:"+ Tausta ja tarkennukset.",
+ 3:"+ Teknisempi ja tilastollinen syvyys.",
+ 4:"+ Harvemmin kerrottu, yksityiskohtaisempi taso.",
+ 5:"+ Syvimmät taustatarinat ja vähän tunnetut yksityiskohdat."
+};
+
+let currentLevel = 1;
+
+function buildLevelBar(){
+  const c = document.getElementById('levelBtns');
+  c.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b=document.createElement('button');
+    b.className='lvlbtn'+(i===currentLevel?' active':(i<currentLevel?' on':''));
+    b.textContent=i;
+    b.onclick=()=>{ currentLevel=i; renderAll(); };
+    c.appendChild(b);
+  }
+  document.getElementById('levelDesc').textContent = LEVEL_LABELS[currentLevel];
+}
+
+function renderDepthLayers(){
+  Object.keys(DEPTH).forEach(sec=>{
+    const el = document.getElementById('layers-'+sec);
+    if(!el) return;
+    const visible = DEPTH[sec].filter(l=>l.lvl<=currentLevel);
+    if(visible.length===0){
+      el.innerHTML = `<div class="layer-empty">Nosta syvyystasoa yllä nähdäksesi lisää tästä osiosta.</div>`;
+      return;
+    }
+    el.innerHTML = visible.map(l=>`
+      <div class="layer l${l.lvl}">
+        <span class="lyr-tag">TASO ${l.lvl}</span>
+        <div>${l.text}</div>
+      </div>
+    `).join('');
+  });
+}
+
+function renderAll(){
+  buildLevelBar();
+  renderDepthLayers();
+  renderTaskNav();
+  renderTask(curTask);
+  updateScoreAndGrade();
+}
+
+/* ============ TEHTÄVÄT (perus 11 + 4 syventävää) ============ */
+const TASKS = [
+{id:'fysiikka',num:1,title:'Stimuloitu emissio',sectionId:'fysiikka',category:'Fysiikka',
+ desc:'Tarkista, ymmärrätkö miksi stimuloitu emissio on koherentin valon perusta.',
+ secret:'Einstein johti stimuloidun emission puhtaasti teoreettisesti termodynamiikan yhtälöistä, ilman kokeellista näyttöä ilmiöstä.',
+ prompt:'Mikä erottaa stimuloidun emission spontaanista emissiosta?',
+ opts:['Stimuloitu fotoni on aina energialtaan suurempi kuin sen laukaissut fotoni','Stimuloitu emissio tuottaa fotonin, jolla on sama suunta, vaihe ja aallonpituus kuin laukaisevalla fotonilla — spontaani emissio on satunnaista','Stimuloitu emissio ei vaadi lainkaan energiaa atomilta','Stimuloitu emissio toimii vain hyvin alhaisissa lämpötiloissa'],
+ correct:1,points:100,
+ explain:'Tämä identtisyys on koherenssin fysikaalinen perusta.'},
+{id:'historia',num:2,title:'Ensimmäinen toimiva laser',sectionId:'historia',category:'Historia',
+ desc:'Kuka voitti kilpajuoksun toimivasta laitteesta.',
+ secret:'Maimanin läpimurtoartikkeli hylättiin ensin Physical Review Letters -lehdessä; se julkaistiin lopulta Nature-lehdessä.',
+ prompt:'Kuka rakensi ensimmäisen toimivan laserin vuonna 1960 ja millä aktiivisella aineella?',
+ opts:['Charles Townes, ammoniakkikaasulla','Theodore Maiman, synteettisellä rubiinikiteellä','Gordon Gould, galliumarsenidilla','Ali Javan, hiilidioksidilla'],
+ correct:1,points:100,
+ explain:'Maiman voitti kilpajuoksun 16.5.1960 rubiinilla.'},
+{id:'teknologiat',num:3,title:'Nelitasojärjestelmä',sectionId:'teknologiat',category:'Teknologia',
+ desc:'Miksi kuitulaser on tehokkaampi kuin alkuperäinen rubiinilaser.',
+ secret:'Eksimeerilasereissa hyötysuhde uhrataan tarkoituksella lyhyen UV-aallonpituuden saamiseksi.',
+ prompt:'Miksi nelitasojärjestelmä, kuten kuitulaser, vaatii vähemmän pumppaustehoa kuin kolmitasojärjestelmä?',
+ opts:['Se ei tarvitse lainkaan pumppausenergiaa','Alempi lasertaso tyhjenee nopeasti perustasolle, joten populaatioinversio syntyy pienelläkin pumppauksella','Se käyttää ainoastaan kaasumaisia aineita','Se estää lämmön muodostumisen kokonaan'],
+ correct:1,points:100,
+ explain:'Kolmitasojärjestelmässä yli puolet atomeista pitää nostaa ylätilaan ennen vahvistusta.'},
+{id:'sovellukset',num:4,title:'EUV-litografia',sectionId:'sovellukset',category:'Sovellukset',
+ desc:'Miten kehittyneimmät mikropiirit valmistetaan.',
+ secret:'Koko maailman EUV-litografiakoneiden valmistus on käytännössä yhden ainoan yhtiön varassa.',
+ prompt:'Miten 13,5 nanometrin EUV-valo tuotetaan mikropiirien litografiassa?',
+ opts:['He-Ne-kaasuputkella suodattamalla','Höyrystämällä tinapisaroita CO₂-laserpulssilla plasmaksi','Yhdistämällä useita puolijohdediodeja','Heijastamalla kuitulaserin valoa peilistä'],
+ correct:1,points:100,
+ explain:'CO₂-laserilla höyrystetty tinaplasma on ainoa tunnettu tapa tuottaa riittävän lyhytaaltoista valoa.'},
+{id:'talous',num:5,title:'Markkinan kasvusegmentit',sectionId:'talous',category:'Talous',
+ desc:'Mikä lasersegmentti kasvaa nopeimmin ennusteiden mukaan.',
+ secret:'Korkean energian laserien markkinan ennustetaan kasvavan noin 16 % vuodessa.',
+ prompt:'Mikä lasersegmentti kasvaa ennusteiden mukaan (2025–2030) prosentuaalisesti nopeimmin?',
+ opts:['Teollisuuden kuitulaserit','Laseroptiikan komponentit','Korkean energian ja puolustuslaserit','He-Ne-kaasulaserit'],
+ correct:2,points:100,
+ explain:'Puolustusbudjettien kasvu on nostanut tämän segmentin kasvuvauhdin muita nopeammaksi.'},
+{id:'toimijat',num:6,title:'Suurimmat toimijat',sectionId:'toimijat',category:'Toimijat',
+ desc:'Kuka hallitsee EUV-litografian markkinaa.',
+ secret:'ASML:n EUV-osuus kasvoi 38 %:sta 48 %:iin vuodesta 2024 vuoteen 2025.',
+ prompt:'Mikä yhtiö on ainoa maailmassa, joka valmistaa EUV-litografiakoneita?',
+ opts:['IPG Photonics','ASML','Han\'s Laser','Lumentum'],
+ correct:1,points:100,
+ explain:'ASML:n monopoliasema tekee siitä koko mikropiiriteollisuuden strategisen solmukohdan.'},
+{id:'rahoitus',num:7,title:'Fuusiotutkimuksen rahoitus',sectionId:'rahoitus',category:'Rahoitus',
+ desc:'Kuka rahoittaa suurimman fuusiolaserlaitoksen.',
+ secret:'Osa korkean energian laserien tutkimuksesta on edelleen turvallisuusluokiteltua.',
+ prompt:'Mikä yhdysvaltalainen laboratorio rahoittaa ja ylläpitää 192-säteistä fuusiolaseria (NIF)?',
+ opts:['MIT Lincoln Laboratory','Lawrence Livermore National Laboratory','Bell Labs','Fraunhofer ILT'],
+ correct:1,points:100,
+ explain:'NIF sijaitsee Lawrence Livermoressa, osana Yhdysvaltain energiaministeriön laboratorioverkkoa.'},
+{id:'yhteiskunta',num:8,title:'Optinen vahvistin',sectionId:'yhteiskunta',category:'Yhteiskunta',
+ desc:'Mikä komponentti pitää internetin toiminnassa.',
+ secret:null,
+ prompt:'Mikä optinen komponentti vahvistaa signaalin valokuituverkossa täysin ilman sähköistä välivaihetta?',
+ opts:['QCL-vastaanotin','Erbiumseostettu kuituvahvistin (EDFA)','He-Ne-toistin','Eksimeerimodulaattori'],
+ correct:1,points:100,
+ explain:'EDFA vahvistaa signaalin suoraan valona.'},
+{id:'haitat',num:9,title:'Todellinen riski',sectionId:'haitat',category:'Riskit',
+ desc:'Erota dokumentoitu riski teoreettisesta.',
+ secret:null,
+ prompt:'Mikä seuraavista on dokumentoitu, toistuva laserin haittapuoli — ei pelkkä teoreettinen mahdollisuus?',
+ opts:['Laserosoittimien suuntaaminen lentokoneiden ohjaamoihin aiheuttaa vuosittain vaaratilanteita','Kaikki laserit tuottavat radioaktiivista säteilyä','Laserit lämmittävät ilmakehää mitattavasti globaalisti','Laserit häiritsevät kaikkia langattomia verkkoja automaattisesti'],
+ correct:0,points:100,
+ explain:'Laserosoittimien väärinkäyttöä ilmaliikennettä vastaan seurataan säännöllisesti.'},
+{id:'hallinta',num:10,title:'Turvallisuusstandardi',sectionId:'hallinta',category:'Turvallisuus',
+ desc:'Mikä standardi ohjaa laserien luokittelua.',
+ secret:null,
+ prompt:'Mikä kansainvälinen standardi määrittelee laserlaitteiden turvallisuusluokat 1–4?',
+ opts:['ISO 9001','IEC 60825','IEEE 802.11','ANSI CAD-2020'],
+ correct:1,points:100,
+ explain:'IEC 60825 -luokitus ohjaa suoraan tarvittavia suojaimia ja koulutusta.'},
+{id:'tulevaisuus',num:11,title:'Plasmaoptiikka',sectionId:'tulevaisuus',category:'Tulevaisuus',
+ desc:'Miksi kiinteät peilit eivät riitä äärimmäisissä tehoissa.',
+ secret:null,
+ prompt:'Miksi plasma korvaa kiinteät peilit ja linssit äärimmäisen korkeissa tehoissa?',
+ opts:['Plasma on halvempaa kuin lasi','Plasma on jo täysin ionisoitunut, joten sillä ei ole samaa vauriokynnystä kuin kiinteällä materiaalilla','Plasma heijastaa valoa paremmin kuin hopeoidut peilit','Plasmaa voidaan käyttää vain huoneenlämmössä'],
+ correct:1,points:100,
+ explain:'Kiinteät materiaalit vaurioituvat kenttävoimakkuuden ylittäessä ionisaatiorajan.'}
+];
+
+const BONUS_TASKS = [
+{id:'bonus1',num:'S1',title:'Gouldin kielletty projekti',sectionId:'historia',category:'Syväosaaminen',bonus:true,
+ desc:'Vaatii tason 5 tekstin lukemista historiaosiosta.',secret:null,
+ prompt:'Miksi Gordon Gould ei saanut työskennellä oman, ARPA:n rahoittaman laserprojektinsa parissa vuosina 1958–1960?',
+ opts:['Hän ei osannut tarpeeksi matematiikkaa','Projekti luokiteltiin salaiseksi eikä hän saanut turvallisuusselvitystä aiemman kommunistisiteensä vuoksi','Hän oli irtisanoutunut TRG:stä','ARPA perui koko rahoituksen'],
+ correct:1,points:100,explain:'Pentagon epäsi Gouldilta turvallisuusselvityksen, vaikka hän oli itse keksinyt koko projektin idean.'},
+{id:'bonus2',num:'S2',title:'Ennen maseria',sectionId:'historia',category:'Syväosaaminen',bonus:true,
+ desc:'Vaatii tason 3 tekstin lukemista historiaosiosta.',secret:null,
+ prompt:'Kuka esitti stimuloituun emissioon perustuvan mikroaaltovahvistimen konseptin jo vuonna 1951–1952, ennen Townesin ensimmäistä toimivaa maseria?',
+ opts:['Joseph Weber','Nikolai Basov','Arthur Schawlow','Nick Holonyak'],
+ correct:0,points:100,explain:'Weber esitti idean vuoden 1952 konferenssissa Ottawassa — Townes pyysi häneltä kopion paperista.'},
+{id:'bonus3',num:'S3',title:'Kertakäyttöinen avaruusase',sectionId:'rahoitus',category:'Syväosaaminen',bonus:true,
+ desc:'Vaatii tason 5 tekstin lukemista rahoitusosiosta.',secret:null,
+ prompt:'Mikä 1980-luvun yhdysvaltalainen ohjelma kehitti ydinräjähdyksellä pumpattavaa, kertakäyttöistä röntgenlaseria ohjuspuolustusaseeksi?',
+ opts:['Manhattan-projekti','Excalibur (osa SDI-ohjelmaa)','NIF-fuusio-ohjelma','Sputnik-vastaohjelma'],
+ correct:1,points:100,explain:'Excalibur kehitettiin Lawrence Livermoressa Edward Tellerin johdolla — laitetta ei koskaan saatu toimivaksi asejärjestelmäksi.'},
+{id:'bonus4',num:'S4',title:'Elävä laser',sectionId:'teknologiat',category:'Syväosaaminen',bonus:true,
+ desc:'Vaatii tason 5 tekstin lukemista teknologiaosiosta.',secret:null,
+ prompt:'Millä tavalla tutkijat ovat käyttäneet elävää biologista solua laserin gain-mediana?',
+ opts:['Muuntamalla solu geneettisesti tuottamaan vihreää fluoresoivaa proteiinia ja sijoittamalla se kahden peilin väliin','Jäähdyttämällä solu lähelle absoluuttista nollapistettä','Muuttamalla solu plasmaksi voimakkaalla sähkövirralla','Solulaseria ei ole koskaan toteutettu käytännössä'],
+ correct:0,points:100,explain:'Geenimuunneltu solu pumpattiin sinisellä valolla kahden 20-mikrometrin peilin välissä, ja se säteili suunnattua vihreää laservaloa.'}
+];
+
+let curTask=0, userAnswers={}, openedSecrets={};
+
+function allTasks(){ return TASKS.concat(BONUS_TASKS); }
+
+function bonusUnlocked(){ return currentLevel>=4; }
+
+function renderTaskNav(){
+  const nav = document.getElementById('taskNav');
+  let html = TASKS.map((t,idx)=>{
+    let cls='tnav-dot'+(idx===curTask?' active':'');
+    if(userAnswers[idx]!==undefined) cls+= (userAnswers[idx]===t.correct?' correct':' wrong');
+    return `<div class="${cls}" onclick="jumpToTask(${idx})">${t.num}</div>`;
+  }).join('');
+  BONUS_TASKS.forEach((t,bi)=>{
+    const idx = TASKS.length+bi;
+    let cls='tnav-dot bonus'+(idx===curTask?' active':'');
+    if(userAnswers[idx]!==undefined) cls+= (userAnswers[idx]===t.correct?' correct':' wrong');
+    html += `<div class="${cls}" onclick="jumpToTask(${idx})" title="Syventävä">${t.num}</div>`;
+  });
+  nav.innerHTML = html;
+}
+
+function renderTask(idx){
+  curTask=idx; renderTaskNav();
+  const all = allTasks();
+  const t = all[idx];
+  const card=document.getElementById('taskStageCard');
+  const isBonus = !!t.bonus;
+
+  if(isBonus && !bonusUnlocked()){
+    card.className = 'stage-card bonus';
+    card.innerHTML = `
+      <div class="s-act">Syventävä ${t.num} · lukittu</div>
+      <div class="s-title">${t.title}</div>
+      <div class="bonus-lock">Tämä kysymys avautuu, kun nostat syvyystason sivun ylälaidasta <b>4:ään tai 5:ään</b> — se perustuu osion syvimpään taustatietoon.</div>
+    `;
+    return;
+  }
+
+  const ans=userAnswers[idx];
+  let optsHtml=t.opts.map((o,oi)=>{
+    let cls='q-opt';
+    if(ans!==undefined){ cls+=' disabled'; if(oi===t.correct) cls+=' correct'; else if(oi===ans) cls+=' wrong'; }
+    return `<button class="${cls}" onclick="submitAnswer(${idx},${oi})" ${ans!==undefined?'disabled':''}>
+      <span style="font-family:var(--mono);">${String.fromCharCode(65+oi)}</span><span>${o}</span></button>`;
+  }).join('');
+  let feedHtml='';
+  if(ans!==undefined){
+    const ok=ans===t.correct;
+    feedHtml=`<div class="q-feed show ${ok?'ok':'no'}">${ok?'Oikein.':'Ei aivan.'} ${t.explain}</div>`;
+  }
+  card.className = 'stage-card'+(isBonus?' bonus':'');
+  card.innerHTML=`
+    <div class="s-act">${isBonus?'Syventävä '+t.num:'Moduuli '+t.num} · ${t.category}</div>
+    <div class="s-title">${t.title}</div>
+    <div class="s-desc">${t.desc}</div>
+    ${t.secret?`<div class="secret-box">
+      <button class="secret-btn" onclick="toggleSecret(${idx})"><span>Paljasta salaisuus</span><span>▾</span></button>
+      <div class="secret-text ${openedSecrets[idx]?'open':''}" id="secText-${idx}">${t.secret}</div>
+    </div>`:''}
+    <div class="q-box">
+      <div class="q-title">${t.prompt}</div>
+      <div class="q-opts">${optsHtml}</div>
+      ${feedHtml}
+    </div>`;
+}
+
+function submitAnswer(taskIdx,optIdx){ userAnswers[taskIdx]=optIdx; renderTask(taskIdx); updateScoreAndGrade(); }
+function toggleSecret(taskIdx){ openedSecrets[taskIdx]=!openedSecrets[taskIdx]; const el=document.getElementById(`secText-${taskIdx}`); if(el) el.classList.toggle('open'); updateScoreAndGrade(); }
+function jumpToTask(idx){ renderTask(idx); const t=allTasks()[idx]; const el=document.getElementById(t.sectionId); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+function navTask(delta){ const n=curTask+delta; if(n>=0 && n<allTasks().length) jumpToTask(n); }
+
+function updateScoreAndGrade(){
+  const all = allTasks();
+  let total=0, max=all.length*100, weakCategories=[];
+  all.forEach((t,idx)=>{
+    if(userAnswers[idx]!==undefined){
+      if(userAnswers[idx]===t.correct){
+        let pts=t.points; if(openedSecrets[idx]) pts-=10;
+        total+=Math.max(pts,50);
+      } else { weakCategories.push(t.category); }
+    }
+  });
+  const pct = total/max;
+  const grade = Math.min(5, 1 + pct*4);
+  document.getElementById('gradeBadge').textContent = grade.toFixed(1)+' / 5';
+  document.getElementById('scoreDisplay').textContent = `${total} / ${max} p`;
+  document.getElementById('meterFill').style.width = (pct*100)+'%';
+
+  const recBox=document.getElementById('recBox');
+  const answeredBase = TASKS.filter((t,i)=>userAnswers[i]!==undefined).length;
+  if(weakCategories.length>0){
+    recBox.style.display='block';
+    recBox.innerHTML = `Kertaa osio <strong>${weakCategories[0]}</strong> nostaaksesi arvosanaa.`;
+  } else if(answeredBase===TASKS.length && !bonusUnlocked()){
+    recBox.style.display='block';
+    recBox.innerHTML = `Perusosio täynnä (max noin 4/5). Nosta syvyystaso 4–5:een avataksesi 4 syventävää kysymystä ja tavoitellaksesi arvosanaa 5.`;
+  } else if(Object.keys(userAnswers).length===all.length){
+    recBox.style.display='block';
+    recBox.innerHTML = `Kaikki ${all.length} tehtävää vastattu oikein.`;
+  } else {
+    recBox.style.display='none';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', renderAll);
+</script>
+</body>
+</html>
